@@ -494,10 +494,11 @@ class _DashboardViewState extends State<DashboardView>
                 fontWeight: FontWeight.w500),
           ),
           ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _navigate('/emergency');
-            },
+            onPressed: () => (){},
+            // onPressed: () {
+            //   Navigator.pop(context);
+            //   _navigate('/emergency');
+            // },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.alert,
               shape: RoundedRectangleBorder(
