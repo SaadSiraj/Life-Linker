@@ -92,16 +92,16 @@ class PeopleListView extends StatefulWidget {
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
         boxShadow: [
           BoxShadow(
-              color: Color(0x0D000000), blurRadius: 10, offset: Offset(0, 3))
+              color: Color(0x0D000000), blurRadius: 12, offset: Offset(0, 4))
         ],
       ),
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: EdgeInsets.fromLTRB(20.h, 12.v, 20.h, 16.v),
+          padding: EdgeInsets.fromLTRB(20.h, 12.v, 20.h, 24.v),
           child: Row(
             children: [
               // GestureDetector(
@@ -118,31 +118,11 @@ class PeopleListView extends StatefulWidget {
               //   ),
               // ),
               SizedBox(width: 12.h),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AppText('Known People',
-                      size: 18,
-                      color: AppColors.textDark,
-                      fontWeight: FontWeight.w700),
-                  AppText('Familiar faces for the patient',
-                      size: 11, color: AppColors.iconGrey),
-                ],
-              ),
+              AppText('Known People',
+                  size: 18,
+                  color: AppColors.textDark,
+                  fontWeight: FontWeight.w700),
               const Spacer(),
-              GestureDetector(
-                onTap: _reload,
-                child: Container(
-                  width: 40.h,
-                  height: 40.h,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF5F7FB),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(Icons.refresh_rounded,
-                      size: 20.h, color: AppColors.iconGrey),
-                ),
-              ),
             ],
           ),
         ),

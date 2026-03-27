@@ -4,6 +4,7 @@ import 'package:lifelinker/core/constants/app_colors.dart';
 import 'package:lifelinker/core/constants/app_images.dart';
 import 'package:lifelinker/core/utils/size_utils.dart';
 import 'package:lifelinker/core/shared/app_text.dart';
+import 'package:lifelinker/module/health_monitoring/health_data.dart';
 
 // ─── Data Model ────────────────────────────────────────────────────────────
 
@@ -163,7 +164,7 @@ class _DashboardViewState extends State<DashboardView>
                   title: 'Location',
                   value: data.locationLabel,
                   subtitle: data.locationSub,
-                  onTap: () => _navigate('/location'),
+                  onTap: () => (){},
                 ),
                 _DashCard(
                   icon: Icons.medication_rounded,
@@ -172,7 +173,7 @@ class _DashboardViewState extends State<DashboardView>
                   title: 'Medication',
                   value: data.medicationLabel,
                   subtitle: data.medicationSub,
-                  onTap: () => _navigate('/medication'),
+                  onTap: () => (){},
                 ),
                 _DashCard(
                   icon: Icons.people_alt_rounded,
@@ -181,7 +182,7 @@ class _DashboardViewState extends State<DashboardView>
                   title: 'Known People',
                   value: '${data.knownPeopleCount} contacts',
                   subtitle: data.knownPeopleSub,
-                  onTap: () => _navigate('/people'),
+                  onTap: () => (){}
                 ),
                 _DashCard(
                   icon: Icons.favorite_rounded,
@@ -190,13 +191,16 @@ class _DashboardViewState extends State<DashboardView>
                   title: 'Health',
                   value: data.healthLabel,
                   subtitle: data.healthSub,
-                  onTap: () => _navigate('/health'),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const HealthDataView()),
+                  ),
                 ),
               ]),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 crossAxisSpacing: 14.h,
-                mainAxisSpacing: 14.v,
+                mainAxisSpacing: 10.v,
                 childAspectRatio: 1.0,
               ),
             ),
@@ -231,42 +235,45 @@ class _DashboardViewState extends State<DashboardView>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Top row: Logo + refresh
-              Row(
-                children: [
-                  // Container(
-                  //   width: 80.h,
-                  //   height: 80.h,
-                  //   decoration: BoxDecoration(
-                  //     color: AppColors.cardWhite,
-                  //     shape: BoxShape.circle,
-                  //   ),
-                  //   child: Padding(
-                  //     padding: const EdgeInsets.all(8.0),
-                  //     child: Image.asset(
-                  //       AppImages.logo,
+              // Row(
+              //   children: [
+              //     // Container(
+              //     //   width: 80.h,
+              //     //   height: 80.h,
+              //     //   decoration: BoxDecoration(
+              //     //     color: AppColors.cardWhite,
+              //     //     shape: BoxShape.circle,
+              //     //   ),
+              //     //   child: Padding(
+              //     //     padding: const EdgeInsets.all(8.0),
+              //     //     child: Image.asset(
+              //     //       AppImages.logo,
                     
-                  //       fit: BoxFit.cover,
-                  //     ),
-                  //   ),
-                  // ),
-                  SizedBox(width: 10.h),
-                  AppText(
-                    'LifeLinker',
-                    size: 33,
-                    color: AppColors.cardWhite,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.3,
-                  ),
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: _refresh,
-                    child: Icon(Icons.refresh_rounded,
-                        color: AppColors.cardWhite, size: 22.h),
-                  ),
-                ],
-              ),
+              //     //       fit: BoxFit.cover,
+              //     //     ),
+              //     //   ),
+              //     // ),
+              //     SizedBox(width: 10.h),
+              //     AppText(
+              //       'LifeLinker',
+              //       size: 33,
+              //       color: AppColors.cardWhite,
+              //       fontWeight: FontWeight.w700,
+              //       letterSpacing: 0.3,
+              //     ),
+              //     const Spacer(),
+              //     GestureDetector(
+              //       onTap: _refresh,
+              //       child: Icon(Icons.refresh_rounded,
+              //           color: AppColors.cardWhite, size: 22.h),
+              //     ),
+              //   ],
+              // ),
 
-              SizedBox(height: 20.v),
+
+
+
+              // SizedBox(height: 20.v),
 
               // Patient row
               Row(
@@ -368,7 +375,7 @@ class _DashboardViewState extends State<DashboardView>
   Widget _buildSOSBar() {
     return Container(
       color: Colors.white,
-      padding: EdgeInsets.fromLTRB(16.h, 10.v, 16.h, 24.v),
+      padding: EdgeInsets.fromLTRB(10.h, 5.v, 6.h, 14.v),
       child: Row(
         children: [
           // SOS Button
@@ -536,7 +543,7 @@ class _DashCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      // onTap: onTap,
+      onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lifelinker/core/routes/app_router.dart';
 import 'package:lifelinker/core/routes/routes_name.dart';
+import 'package:lifelinker/module/health_monitoring/health_data.dart';
 
 void main() {
   runApp(MyApp());
@@ -19,7 +20,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      // home: SplashView(),
+      home: HealthDataView(),
 
       initialRoute: RouteNames.splash,
       onGenerateRoute: AppRouter.generateRoute,

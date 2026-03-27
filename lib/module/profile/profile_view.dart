@@ -172,6 +172,40 @@ class _ProfileViewState extends State<ProfileView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        forceMaterialTransparency: true,
+        backgroundColor: Colors.white,
+
+      automaticallyImplyLeading: false,
+        elevation: 0,
+        title: AppText('Profile & Settings',
+            size: 18,
+            color: AppColors.textDark,
+            fontWeight: FontWeight.w700),
+            actions: [
+                GestureDetector(
+                      onTap: () async {
+                        final profile = await _profileFuture;
+                        if (!mounted) return;
+                        _showEditProfileSheet(profile);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 14.h, vertical: 8.v),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: AppText('Edit',
+                            size: 13,
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600),
+                      ),
+                    ),
+
+                    const SizedBox(width: 16),
+            ],
+      ),
       backgroundColor: const Color(0xFFF5F7FB),
       body: FutureBuilder<UserProfile>(
         future: _profileFuture,
@@ -240,42 +274,21 @@ class _ProfileViewState extends State<ProfileView> {
                 // Top bar
                 Row(
                   children: [
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Container(
-                        width: 40.h,
-                        height: 40.h,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF5F7FB),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(Icons.arrow_back_ios_new_rounded,
-                            size: 18.h, color: AppColors.textDark),
-                      ),
-                    ),
-                    SizedBox(width: 12.h),
-                    AppText(
-                      'Profile & Settings',
-                      size: 18,
-                      color: AppColors.textDark,
-                      fontWeight: FontWeight.w700,
-                    ),
-                    const Spacer(),
-                    GestureDetector(
-                      onTap: () => _showEditProfileSheet(profile),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 14.h, vertical: 8.v),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: AppText('Edit',
-                            size: 13,
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w600),
-                      ),
-                    ),
+                    // GestureDetector(
+                    //   onTap: () => Navigator.pop(context),
+                    //   child: Container(
+                    //     width: 40.h,
+                    //     height: 40.h,
+                    //     decoration: BoxDecoration(
+                    //       color: const Color(0xFFF5F7FB),
+                    //       borderRadius: BorderRadius.circular(12),
+                    //     ),
+                    //     child: Icon(Icons.arrow_back_ios_new_rounded,
+                    //         size: 18.h, color: AppColors.textDark),
+                    //   ),
+                    // ),
+                  
+                 
                   ],
                 ),
 
