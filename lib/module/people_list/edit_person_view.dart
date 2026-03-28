@@ -607,7 +607,8 @@ class _EditPersonViewState extends State<EditPersonView>
                               size: 13,
                               color: AppColors.textDark,
                               fontWeight: FontWeight.w600),
-                          AppText('ID: ${embId.substring(0, 10)}…',
+                          AppText(
+                              'ID: ${embId.length > 10 ? '${embId.substring(0, 10)}…' : embId}',
                               size: 10, color: AppColors.iconGrey),
                         ],
                       ),
@@ -867,7 +868,8 @@ class _EditPersonViewState extends State<EditPersonView>
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: AppText('Face registered successfully! (ID: ${embId.substring(0, 8)}…)',
+            content: AppText(
+                'Face registered successfully! (ID: ${embId.length > 8 ? '${embId.substring(0, 8)}…' : embId})',
                 size: 13, color: Colors.white),
             backgroundColor: const Color(0xFF10B981),
             behavior: SnackBarBehavior.floating,

@@ -4,6 +4,7 @@ import 'package:lifelinker/core/constants/app_colors.dart';
 import 'package:lifelinker/core/constants/app_images.dart';
 import 'package:lifelinker/core/shared/app_text.dart';
 import 'package:lifelinker/core/utils/size_utils.dart';
+import 'package:lifelinker/module/auth/views/forgot_password_view.dart';
 import 'package:lifelinker/module/base_navigation/base_navigation_view.dart';
 
 class LoginView extends StatefulWidget {
@@ -191,6 +192,13 @@ class _LoginViewState extends State<LoginView> {
                   alignment: Alignment.centerRight,
                   child: GestureDetector(
                     onTap: () {
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ForgotPasswordView(),
+                        ),
+                      );
                       // TODO: Navigate to forgot password
                     },
                     child: AppText(
