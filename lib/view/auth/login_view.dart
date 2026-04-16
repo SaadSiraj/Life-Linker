@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lifelinker/core/constants/app_colors.dart';
 import 'package:lifelinker/core/constants/app_images.dart';
-import 'package:lifelinker/core/shared/app_text.dart';
+import 'package:lifelinker/core/widgets/app_text.dart';
 import 'package:lifelinker/core/utils/size_utils.dart';
-import 'package:lifelinker/module/auth/views/forgot_password_view.dart';
-import 'package:lifelinker/module/base_navigation/base_navigation_view.dart';
+import 'package:lifelinker/view/auth/forgot_password_view.dart';
+import 'package:lifelinker/view/base_navigation/base_navigation_view.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});

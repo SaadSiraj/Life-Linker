@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lifelinker/core/routes/routes_name.dart';
-import 'package:lifelinker/module/auth/views/login_view.dart';
-import 'package:lifelinker/module/splash/splash_view.dart';
-import '../shared/app_text.dart';
+import 'package:lifelinker/view/auth/login_view.dart';
+import 'package:lifelinker/view/splash/splash_view.dart';
+import '../widgets/app_text.dart';
 
 class AppRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {

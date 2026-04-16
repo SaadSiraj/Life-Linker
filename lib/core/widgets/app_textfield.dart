@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants/app_colors.dart';
-import '../shared/app_text.dart';
+import 'app_text.dart';
 import '../utils/size_utils.dart';
 
 class ReusableTextField extends StatefulWidget {

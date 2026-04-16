@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:lifelinker/core/constants/app_colors.dart';
-import 'package:lifelinker/core/shared/app_text.dart';
+import 'package:lifelinker/core/widgets/app_text.dart';
 import 'package:lifelinker/core/utils/size_utils.dart';
-import 'package:lifelinker/module/dashboard/dashboard_view.dart';
-import 'package:lifelinker/module/location/location_view.dart';
-import 'package:lifelinker/module/medication/medication.dart';
-import 'package:lifelinker/module/people_list/people_list_view.dart';
-import 'package:lifelinker/module/profile/profile_view.dart';
+import 'package:lifelinker/view/dashboard/dashboard_view.dart';
+import 'package:lifelinker/view/location/location_view.dart';
+import 'package:lifelinker/view/medication/medication.dart';
+import 'package:lifelinker/view/people_list/people_list_view.dart';
+import 'package:lifelinker/view/profile/profile_view.dart';
 
 class BaseNavigationView extends StatefulWidget {
   const BaseNavigationView({super.key});

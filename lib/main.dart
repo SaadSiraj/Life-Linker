@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lifelinker/core/routes/app_router.dart';
 import 'package:lifelinker/core/routes/routes_name.dart';
-import 'package:lifelinker/module/health_monitoring/health_data.dart';
+import 'package:lifelinker/view/health_monitoring/health_data.dart';
 
 void main() {
   runApp(MyApp());

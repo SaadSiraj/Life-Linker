@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lifelinker/core/constants/app_colors.dart';
 import 'package:lifelinker/core/utils/size_utils.dart';
-import 'package:lifelinker/core/shared/app_text.dart';
+import 'package:lifelinker/core/widgets/app_text.dart';
 import 'package:lifelinker/model/people_model.dart';
-import 'package:lifelinker/module/people_list/add_person_view.dart';
-import 'package:lifelinker/module/people_list/edit_person_view.dart';
+import 'package:lifelinker/view/people_list/add_person_view.dart';
+import 'package:lifelinker/view/people_list/edit_person_view.dart';
 
 class PeopleListView extends StatefulWidget {
   const PeopleListView({super.key});

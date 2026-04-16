@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:lifelinker/core/constants/app_colors.dart';
 import 'package:lifelinker/core/constants/app_images.dart';
 import 'package:lifelinker/core/utils/size_utils.dart';
-import 'package:lifelinker/core/shared/app_text.dart';
-import 'package:lifelinker/module/health_monitoring/health_data.dart';
+import 'package:lifelinker/core/widgets/app_text.dart';
+import 'package:lifelinker/view/health_monitoring/health_data.dart';
 
 // ─── Data Model ────────────────────────────────────────────────────────────
 

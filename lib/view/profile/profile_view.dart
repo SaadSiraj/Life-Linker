@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lifelinker/core/constants/app_colors.dart';
 import 'package:lifelinker/core/utils/size_utils.dart';
-import 'package:lifelinker/core/shared/app_text.dart';
+import 'package:lifelinker/core/widgets/app_text.dart';
 
 // ─── Models ────────────────────────────────────────────────────────────────
 
