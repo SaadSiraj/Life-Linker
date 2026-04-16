@@ -9,4 +9,8 @@ class RouteNames {
   static const String login = '/login';
   static const String register = '/register';
   static const String setting = '/setting';
+  static const String forgotPassword = '/forgot-password';
+  static const String healthView = '/health';
+
+
 }

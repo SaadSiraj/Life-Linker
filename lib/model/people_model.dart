@@ -1,9 +1,7 @@
-// people_models.dart
-// Shared data models and API service for the People module.
 
+//junior devloper wrong model with logics and all models in one file this is wrong
 import 'dart:io';
 
-// ─── Model ─────────────────────────────────────────────────────────────────
 
 enum PersonRelationship {
   family,

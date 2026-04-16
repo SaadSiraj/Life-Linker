@@ -84,7 +84,8 @@ class _MedicationViewState extends State<MedicationView> {
       child: Row(
         children: [
           GestureDetector(
-            onTap: () => Navigator.push(
+            onTap: () =>
+             Navigator.push(
               context,
               MaterialPageRoute(
                   builder: (_) => const AddMedicationView()),

@@ -1,76 +1,86 @@
 import 'package:flutter/material.dart';
-import 'package:lifelinker/core/widgets/custom_button.dart' show CustomButton;
+import 'package:lifelinker/core/widgets/custom_button.dart';
 
-void showConfirmationDialoge({
-  String? title,
-  String? subTitle,
-  required String confirmLable,
-  required BuildContext context,
-  required Future<void> Function() onConfirm,
-}) {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return _ConfirmationDialog(
-        title: title,
-        subTitle: subTitle,
-        onConfirm: onConfirm,
-        confirmLabel: confirmLable,
-      );
-    },
-  );
-}
+import '../constants/app_colors.dart';
+import '../utils/size_config.dart';
+import 'app_text.dart';
 
-class _ConfirmationDialog extends StatefulWidget {
-  final String? title;
-  final String? subTitle;
+class AppConfirmDialog extends StatelessWidget {
+  final String title;
+  final String message;
   final String confirmLabel;
-  final Future<void> Function() onConfirm;
+  final Color? confirmColor;
+  final VoidCallback onConfirm;
+  final bool isDestructive;
 
-  const _ConfirmationDialog({
-    this.title,
-    this.subTitle,
+  const AppConfirmDialog({
+    super.key,
+    required this.title,
+    required this.message,
     required this.confirmLabel,
     required this.onConfirm,
+    this.confirmColor,
+    this.isDestructive = false,
   });
 
-  @override
-  State<_ConfirmationDialog> createState() => _ConfirmationDialogState();
-}
-
-class _ConfirmationDialogState extends State<_ConfirmationDialog> {
-  bool isLoading = false;
-
-  Future<void> _handleConfirm() async {
-    setState(() => isLoading = true);
-    try {
-      await widget.onConfirm();
-      if (mounted) {
-        Navigator.of(context).pop();
-      }
-    } finally {
-      if (mounted) setState(() => isLoading = false);
-    }
+  static Future<void> show({
+    required BuildContext context,
+    required String title,
+    required String message,
+    required String confirmLabel,
+    required VoidCallback onConfirm,
+    Color? confirmColor,
+    bool isDestructive = false,
+  }) {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AppConfirmDialog(
+        title: title,
+        message: message,
+        confirmLabel: confirmLabel,
+        onConfirm: onConfirm,
+        confirmColor: confirmColor,
+        isDestructive: isDestructive,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(widget.title ?? 'Delete This Item?'),
-      content: Text(widget.subTitle ?? 'Are you sure you want to delete this?'),
-      actions: [
-        if (!isLoading)
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel', style: TextStyle(fontSize: 12)),
-          ),
-        CustomButton(
-          text: widget.confirmLabel,
-          onTap: _handleConfirm,
-          buttonColor: Colors.red,
+    final color =
+        confirmColor ?? (isDestructive ? AppColors.alert : AppColors.primary);
 
-          width: 100,
-          isLoading: isLoading,
+    return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: AppText(
+        title,
+        size: 16,
+        color: AppColors.textDark,
+        fontWeight: FontWeight.w700,
+      ),
+      content: AppText(message, size: 13, color: AppColors.iconGrey),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: AppText(
+            'Cancel',
+            size: 13,
+            color: AppColors.iconGrey,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        CustomButton(
+          text: confirmLabel,
+          onTap: () {
+            Navigator.pop(context);
+            onConfirm();
+          },
+          backgroundColor: color,
+          height: SizeConfig.heightMultiplier * 4.5,
+          width: SizeConfig.widthMultiplier * 28,
+          borderRadius: 10,
+          fontSize: 13,
         ),
       ],
     );

@@ -1,95 +1,104 @@
 import 'package:flutter/material.dart';
-import 'package:lifelinker/core/constants/app_colors.dart';
-import 'package:lifelinker/core/utils/size_config.dart';
-import 'package:zoom_tap_animation/zoom_tap_animation.dart';
+
+import '../constants/app_colors.dart';
+import '../utils/size_config.dart';
+import 'app_text.dart';
 
 class CustomButton extends StatelessWidget {
-  const CustomButton({
-    super.key,
-    this.isBorder = false,
-    this.isEnabled = false,
-    this.isLoading = false,
-    required this.text,
-    this.radius,
-    required this.onTap,
-    this.fontWeight,
-    this.fontSize,
-    this.height,
-    this.width,
-    this.fontColor,
-    this.buttonColor,
-    this.suffixIcon,
-    this.icon,
-  });
-  final bool isBorder;
-  final Widget? icon;
-  final Widget? suffixIcon;
-  final bool isEnabled;
-  final bool isLoading;
   final String text;
-  final VoidCallback onTap;
-  final double? radius;
-  final double? fontSize;
-  final Color? fontColor;
-  final Color? buttonColor;
-  final FontWeight? fontWeight;
+  final VoidCallback? onTap;
+  final bool isLoading;
+  final bool isEnabled;
+  final Color? backgroundColor;
+  final Color? textColor;
+  final double? borderRadius;
   final double? height;
   final double? width;
+  final FontWeight? fontWeight;
+  final double? fontSize;
+  final Widget? prefixIcon;
+  final Widget? suffixIcon;
+  final bool isBordered;
+  final Color? borderColor;
+
+  const CustomButton({
+    super.key,
+    required this.text,
+    this.onTap,
+    this.isLoading = false,
+    this.isEnabled = true,
+    this.backgroundColor,
+    this.textColor,
+    this.borderRadius,
+    this.height,
+    this.width,
+    this.fontWeight,
+    this.fontSize,
+    this.prefixIcon,
+    this.suffixIcon,
+    this.isBordered = false,
+    this.borderColor,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return ZoomTapAnimation(
-      onTap: isLoading ? () {} : onTap,
+    final effectiveBg = isEnabled
+        ? (backgroundColor ?? AppColors.primary)
+        : (backgroundColor ?? AppColors.primary).withOpacity(0.6);
+
+    return GestureDetector(
+      onTap: (isLoading || !isEnabled) ? null : onTap,
       child: AnimatedContainer(
-        duration: Duration(milliseconds: 300),
-        width: width ?? SizeConfig.widthMultiplier * 100,
-        height: height ?? SizeConfig.heightMultiplier * 6,
+        duration: const Duration(milliseconds: 200),
+        width: width ?? double.infinity,
+        height: height ?? SizeConfig.heightMultiplier * 6.5,
         decoration: BoxDecoration(
-          border: isBorder ? Border.all(color: Colors.grey.shade200) : null,
-          color: isEnabled
-              ? buttonColor ?? AppColors.primary
-              : buttonColor ?? AppColors.iconGrey,
-          borderRadius: BorderRadius.circular(radius ?? 8),
+          color: isBordered ? Colors.white : effectiveBg,
+          borderRadius: BorderRadius.circular(borderRadius ?? 14),
+          border: isBordered
+              ? Border.all(color: borderColor ?? AppColors.border, width: 1.5)
+              : null,
+          boxShadow: isBordered
+              ? [
+                  BoxShadow(
+                    color: AppColors.shadow,
+                    blurRadius: SizeConfig.widthMultiplier * 2,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
         ),
         child: isLoading
             ? Center(
                 child: SizedBox(
-                  width: SizeConfig.heightMultiplier * 2.8,
-                  height: SizeConfig.heightMultiplier * 2.8,
+                  width: SizeConfig.heightMultiplier * 2.5,
+                  height: SizeConfig.heightMultiplier * 2.5,
                   child: CircularProgressIndicator(
-                    strokeWidth: 2.5,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      fontColor ?? Colors.white,
-                    ),
+                    strokeWidth: 2,
+                    color: isBordered ? AppColors.primary : Colors.white,
                   ),
                 ),
               )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (icon != null)
-                    Padding(
-                      padding: EdgeInsets.only(
-                        right: SizeConfig.widthMultiplier * 2,
-                      ),
-                      child: icon!,
-                    ),
-                  Text(
+                  if (prefixIcon != null) ...[
+                    prefixIcon!,
+                    SizedBox(width: SizeConfig.widthMultiplier * 2),
+                  ],
+                  AppText(
                     text,
-                    style: textTheme.headlineSmall!.copyWith(
-                      fontWeight: fontWeight ?? FontWeight.w600,
-                      fontSize: fontSize ?? SizeConfig.textMultiplier * 2,
-                      color: fontColor ?? Colors.white,
-                    ),
+                    size: fontSize ?? 16,
+                    color: isBordered
+                        ? (textColor ?? AppColors.textDark)
+                        : (textColor ?? Colors.white),
+                    fontWeight: fontWeight ?? FontWeight.w600,
+                    letterSpacing: 0.3,
                   ),
-                  if (suffixIcon != null)
-                    Padding(
-                      padding: EdgeInsets.only(
-                        left: SizeConfig.widthMultiplier * 2,
-                      ),
-                      child: suffixIcon!,
-                    ),
+                  if (suffixIcon != null) ...[
+                    SizedBox(width: SizeConfig.widthMultiplier * 2),
+                    suffixIcon!,
+                  ],
                 ],
               ),
       ),
