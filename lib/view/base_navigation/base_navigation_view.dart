@@ -7,7 +7,7 @@ import 'package:lifelinker/view/base_navigation/components/nave_bar.dart';
 import 'package:lifelinker/view/dashboard/dashboard_view.dart';
 import 'package:lifelinker/view/location/location_view.dart';
 import 'package:lifelinker/view/medication/medication.dart';
-import 'package:lifelinker/view/people_list/people_list_view.dart';
+import 'package:lifelinker/view/persons%20list/persons_list_view.dart';
 import 'package:lifelinker/view/profile/profile_view.dart';
 import 'package:provider/provider.dart';
 
@@ -18,7 +18,7 @@ class BaseNavigationView extends StatelessWidget {
     DashboardView(),
     LocationView(),
     MedicationView(),
-    PeopleListView(),
+    PerspnsleListView(),
     ProfileView(),
   ];
 

@@ -10,7 +10,6 @@ import 'package:lifelinker/view/dashboard/components/card.dart';
 import 'package:lifelinker/view/dashboard/components/header.dart';
 import 'package:lifelinker/view/dashboard/components/loading.dart';
 import 'package:lifelinker/view/dashboard/components/sos.dart';
-import 'package:lifelinker/view/health_monitoring/health_data.dart';
 import 'package:provider/provider.dart';
 
 class DashboardView extends StatefulWidget {
@@ -124,8 +123,7 @@ class _DashboardViewState extends State<DashboardView>
                   value: data.healthLabel,
                   subtitle: data.healthSub,
                   onTap: () =>
-                    Navigator.pushReplacementNamed(context, RouteNames.healthView),
-                  
+                      Navigator.pushNamed(context, RouteNames.healthView),
                 ),
               ]),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

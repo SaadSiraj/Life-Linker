@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lifelinker/core/constants/app_images.dart';
 import 'package:lifelinker/core/routes/routes_name.dart';
-import 'package:lifelinker/core/widgets/app_text.dart';
 import 'package:lifelinker/core/utils/size_utils.dart';
+import 'package:lifelinker/core/widgets/app_text.dart';
 
 class SplashView extends StatefulWidget {
   const SplashView({super.key});
@@ -34,18 +34,15 @@ class _SplashViewState extends State<SplashView>
       duration: const Duration(milliseconds: 1200),
     );
 
-    _fadeAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeIn,
-    );
+    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
 
-    _scaleAnimation = Tween<double>(begin: 0.85, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 0.85,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
 
     _controller.forward();
 
-    // Navigate after delay
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
         Navigator.pushReplacementNamed(context, RouteNames.login);
@@ -85,11 +82,7 @@ class _SplashViewState extends State<SplashView>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Logo
-              Image.asset(AppImages.logo,
-              width: 190.h,
-              height: 190.h,
-              ),
-
+                Image.asset(AppImages.logo, width: 190.h, height: 190.h),
 
                 // App Name
                 AppText(
@@ -125,10 +118,7 @@ class _SplashViewState extends State<SplashView>
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: Colors.white.withOpacity(0.15),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.3),
-          width: 1.5,
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.3), width: 1.5),
       ),
       child: Stack(
         alignment: Alignment.center,
@@ -137,18 +127,10 @@ class _SplashViewState extends State<SplashView>
           _buildHeadSilhouette(),
 
           // Puzzle piece top-right
-          Positioned(
-            top: 14.h,
-            right: 14.h,
-            child: _buildPuzzlePiece(),
-          ),
+          Positioned(top: 14.h, right: 14.h, child: _buildPuzzlePiece()),
 
           // Shield bottom-left
-          Positioned(
-            bottom: 20.h,
-            left: 20.h,
-            child: _buildShield(),
-          ),
+          Positioned(bottom: 20.h, left: 20.h, child: _buildShield()),
         ],
       ),
     );
@@ -158,9 +140,7 @@ class _SplashViewState extends State<SplashView>
     return SizedBox(
       width: 110.h,
       height: 110.h,
-      child: CustomPaint(
-        painter: _HeadBrainPainter(),
-      ),
+      child: CustomPaint(painter: _HeadBrainPainter()),
     );
   }
 
@@ -180,11 +160,7 @@ class _SplashViewState extends State<SplashView>
         color: Colors.white.withOpacity(0.2),
         borderRadius: BorderRadius.circular(6),
       ),
-      child: Icon(
-        Icons.shield_outlined,
-        color: Colors.white,
-        size: 20.h,
-      ),
+      child: Icon(Icons.shield_outlined, color: Colors.white, size: 20.h),
     );
   }
 }
@@ -231,28 +207,16 @@ class _HeadBrainPainter extends CustomPainter {
 
     // Left brain lobe
     canvas.drawOval(
-      Rect.fromCenter(
-        center: Offset(cx - 8, cy - 8),
-        width: 28,
-        height: 22,
-      ),
+      Rect.fromCenter(center: Offset(cx - 8, cy - 8), width: 28, height: 22),
       brainStroke,
     );
     // Right brain lobe
     canvas.drawOval(
-      Rect.fromCenter(
-        center: Offset(cx + 8, cy - 8),
-        width: 24,
-        height: 20,
-      ),
+      Rect.fromCenter(center: Offset(cx + 8, cy - 8), width: 24, height: 20),
       brainStroke,
     );
     // Center divider line
-    canvas.drawLine(
-      Offset(cx, cy - 18),
-      Offset(cx, cy + 2),
-      brainStroke,
-    );
+    canvas.drawLine(Offset(cx, cy - 18), Offset(cx, cy + 2), brainStroke);
 
     // Magnifier glass
     final magCenter = Offset(cx - 5, cy + 5);

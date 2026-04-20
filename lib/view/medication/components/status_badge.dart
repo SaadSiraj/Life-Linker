@@ -11,7 +11,11 @@ class MedStatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (status == MedStatus.none) {
-      return Icon(Icons.chevron_right_rounded, color: AppColors.iconGrey, size: 22.h);
+      return Icon(
+        Icons.chevron_right_rounded,
+        color: AppColors.iconGrey,
+        size: 22.h,
+      );
     }
 
     final bool isTaken = status == MedStatus.taken;

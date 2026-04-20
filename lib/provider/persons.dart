@@ -2,9 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:lifelinker/core/widgets/custom_snackbar.dart';
-import 'package:lifelinker/model/people_model.dart';
+import 'package:lifelinker/model/known_person.dart';
+import 'package:lifelinker/repository/person_repo.dart';
 
-class PeopleProvider extends ChangeNotifier {
+class PersonsProvider extends ChangeNotifier {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController notesController = TextEditingController();
@@ -40,7 +41,7 @@ class PeopleProvider extends ChangeNotifier {
     }).toList();
   }
 
-  PeopleProvider() {
+  PersonsProvider() {
     fetchPeople();
   }
 
@@ -50,7 +51,7 @@ class PeopleProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final result = await PeopleApiService.fetchPeople();
+      final result = await PersonsRepository.fetchPeople();
       _people = List.from(result);
     } catch (_) {
       _hasError = true;
@@ -116,7 +117,7 @@ class PeopleProvider extends ChangeNotifier {
     );
 
     try {
-      final saved = await PeopleApiService.addPerson(newPerson);
+      final saved = await PersonsRepository.addPerson(newPerson);
       _people.add(saved);
       _isSaving = false;
       notifyListeners();
@@ -129,7 +130,7 @@ class PeopleProvider extends ChangeNotifier {
   }
 
   Future<void> deletePerson(String id) async {
-    await PeopleApiService.deletePerson(id);
+    await PersonsRepository.deletePerson(id);
     _people.removeWhere((p) => p.id == id);
     notifyListeners();
   }

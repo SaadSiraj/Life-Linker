@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lifelinker/core/widgets/custom_snackbar.dart';
-import 'package:lifelinker/model/profile.dart';
+import 'package:lifelinker/model/notifications.dart';
+import 'package:lifelinker/model/user.dart';
+import 'package:lifelinker/model/safe_zone.dart';
+import 'package:lifelinker/repository/profile_repo.dart';
 
 class ProfileProvider extends ChangeNotifier {
   final TextEditingController caregiverNameController = TextEditingController();
@@ -11,7 +14,7 @@ class ProfileProvider extends ChangeNotifier {
       TextEditingController();
   final TextEditingController emergencyController = TextEditingController();
 
-  UserProfileModel? _profile;
+  UserModel? _profile;
   bool _isLoading = false;
   bool _hasError = false;
 
@@ -21,7 +24,7 @@ class ProfileProvider extends ChangeNotifier {
     centerLabel: 'Home – 12 Maplewood Drive',
   );
 
-  NotificationSettingsModel _notifications = const NotificationSettingsModel(
+  NotificationModel _notifications = const NotificationModel(
     sosAlerts: true,
     geofenceBreaches: true,
     medicationReminders: true,
@@ -29,11 +32,11 @@ class ProfileProvider extends ChangeNotifier {
     lowBattery: true,
   );
 
-  UserProfileModel? get profile => _profile;
+  UserModel? get profile => _profile;
   bool get isLoading => _isLoading;
   bool get hasError => _hasError;
   SafeZoneModel get safeZone => _safeZone;
-  NotificationSettingsModel get notifications => _notifications;
+  NotificationModel get notifications => _notifications;
 
   ProfileProvider() {
     fetchProfile();
@@ -45,17 +48,8 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await Future.delayed(const Duration(milliseconds: 600));
-      _profile = const UserProfileModel(
-        caregiverName: 'Sarah Adeola',
-        caregiverEmail: 'sarah@example.com',
-        caregiverPhone: '+234 801 234 5678',
-        patientName: 'John Adeola',
-        patientAge: 72,
-        patientCondition: "Alzheimer's Disease",
-        patientBloodGroup: 'O+',
-        patientEmergencyContact: '+234 802 987 6543',
-      );
+      final result = await ProfileApiService.fetchProfile();
+      _profile = result;
       _loadEditControllers();
     } catch (_) {
       _hasError = true;
@@ -82,7 +76,7 @@ class ProfileProvider extends ChangeNotifier {
       patientCondition: patientConditionController.text.trim(),
       patientEmergencyContact: emergencyController.text.trim(),
     );
-    await Future.delayed(const Duration(milliseconds: 800));
+    await ProfileApiService.updateProfile(updated);
     _profile = updated;
     notifyListeners();
     showCustomSnackbar(context, false, 'Profile updated successfully');
@@ -91,6 +85,7 @@ class ProfileProvider extends ChangeNotifier {
   void setSafeZoneEnabled(bool enabled) {
     _safeZone = _safeZone.copyWith(enabled: enabled);
     notifyListeners();
+    ProfileApiService.updateSafeZone(_safeZone);
   }
 
   void setSafeZoneRadius(double radius) {
@@ -98,14 +93,21 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateNotifications(NotificationSettingsModel ns) {
+  void commitSafeZoneRadius() {
+    ProfileApiService.updateSafeZone(_safeZone);
+  }
+
+  void updateNotifications(NotificationModel ns) {
     _notifications = ns;
     notifyListeners();
+    ProfileApiService.updateNotifications(ns);
   }
 
   void signOut(BuildContext context) {
     Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
   }
+
+  void refresh() => fetchProfile();
 
   @override
   void dispose() {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lifelinker/core/routes/routes_name.dart';
+import 'package:lifelinker/view/add%20medication/add_medication.dart';
 import 'package:lifelinker/view/auth/forgot_password.dart/forgot_password_view.dart';
 import 'package:lifelinker/view/auth/login/login_view.dart';
 import 'package:lifelinker/view/health_monitoring/health_data.dart';
@@ -25,6 +26,9 @@ class AppRouter {
         break;
       case RouteNames.healthView:
         builder = (_) => const HealthDataView();
+        break;
+      case RouteNames.addMedication:
+        builder = (_) => const AddMedicationView();
         break;
       default:
         builder = (_) =>

@@ -25,7 +25,7 @@ class DashboardProvider extends ChangeNotifier {
       _data = const DashboardModel(
         patientName: 'John Adeola',
         isSafe: true,
-        locationLabel: 'Home – Living Room',
+        locationLabel: 'Home',
         locationSub: 'Last seen 2 min ago',
         medicationLabel: 'Donepezil · 10mg',
         medicationSub: 'Next dose at 8:00 PM',

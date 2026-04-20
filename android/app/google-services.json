@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1026336901012",
+    "project_id": "lifelinker-7ffb8",
+    "storage_bucket": "lifelinker-7ffb8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1026336901012:android:67f405efc5e86c08927181",
+        "android_client_info": {
+          "package_name": "com.example.lifelinker"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDr9FSuS-frS3fjEk0ySmRDvyVXrPTMLxw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
