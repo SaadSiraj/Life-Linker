@@ -1,149 +1,121 @@
-/// JUNIOR DEVLOPER MISS MODELS WORING IN 1 FILE
-library;
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+enum UserRole { patient, caregiver }
 
 class UserModel {
-  final String caregiverName;
-  final String caregiverEmail;
-  final String caregiverPhone;
-  final String patientName;
-  final int patientAge;
-  final String patientCondition;
-  final String patientBloodGroup;
-  final String patientEmergencyContact;
+  final String uid;
+  final String name;
+  final String email;
+  final String? phone;
+  final String? profileImageUrl;
+  final String? dob;
+  final UserRole role;
+
+  // ── Patient-specific ──────────────────────────────────────────────────────
+  final String? condition;
+  final String? bloodGroup;
+  final String? emergencyContact;
+  final String? caregiverId; 
+
+  // ── Caregiver-specific ────────────────────────────────────────────────────
+  final List<String> patientIds; // linked patients' uids
+  final String? relation; 
+
+  final DateTime? createdAt;
 
   const UserModel({
-    required this.caregiverName,
-    required this.caregiverEmail,
-    required this.caregiverPhone,
-    required this.patientName,
-    required this.patientAge,
-    required this.patientCondition,
-    required this.patientBloodGroup,
-    required this.patientEmergencyContact,
+    required this.uid,
+    required this.name,
+    required this.email,
+    this.phone,
+    this.profileImageUrl,
+    this.dob,
+    required this.role,
+    this.condition,
+    this.bloodGroup,
+    this.emergencyContact,
+    this.caregiverId,
+    this.patientIds = const [],
+    this.relation,
+    this.createdAt,
   });
 
-  UserModel copyWith({
-    String? caregiverName,
-    String? caregiverEmail,
-    String? caregiverPhone,
-    String? patientName,
-    int? patientAge,
-    String? patientCondition,
-    String? patientBloodGroup,
-    String? patientEmergencyContact,
-  }) {
+  // ── fromMap ───────────────────────────────────────────────────────────────
+  factory UserModel.fromMap(Map<String, dynamic> map, String uid) {
     return UserModel(
-      caregiverName: caregiverName ?? this.caregiverName,
-      caregiverEmail: caregiverEmail ?? this.caregiverEmail,
-      caregiverPhone: caregiverPhone ?? this.caregiverPhone,
-      patientName: patientName ?? this.patientName,
-      patientAge: patientAge ?? this.patientAge,
-      patientCondition: patientCondition ?? this.patientCondition,
-      patientBloodGroup: patientBloodGroup ?? this.patientBloodGroup,
-      patientEmergencyContact:
-          patientEmergencyContact ?? this.patientEmergencyContact,
+      uid: uid,
+      name: map['name'] ?? '',
+      email: map['email'] ?? '',
+      phone: map['phone'],
+      profileImageUrl: map['profileImageUrl'],
+      dob: map['dob'],
+      role: map['role'] == 'caregiver' ? UserRole.caregiver : UserRole.patient,
+      condition: map['condition'],
+      bloodGroup: map['bloodGroup'],
+      emergencyContact: map['emergencyContact'],
+      caregiverId: map['caregiverId'],
+      patientIds: List<String>.from(map['patientIds'] ?? []),
+      relation: map['relation'],
+      createdAt: map['createdAt'] != null
+          ? (map['createdAt'] as Timestamp).toDate()
+          : null,
     );
   }
+
+  // ── toMap ─────────────────────────────────────────────────────────────────
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'email': email,
+      'phone': phone,
+      'profileImageUrl': profileImageUrl,
+      'dob': dob,
+      'role': role == UserRole.caregiver ? 'caregiver' : 'patient',
+      'condition': condition,
+      'bloodGroup': bloodGroup,
+      'emergencyContact': emergencyContact,
+      'caregiverId': caregiverId,
+      'patientIds': patientIds,
+      'relation': relation,
+      'createdAt': FieldValue.serverTimestamp(),
+    };
+  }
+
+  // ── copyWith ──────────────────────────────────────────────────────────────
+  UserModel copyWith({
+    String? name,
+    String? email,
+    String? phone,
+    String? profileImageUrl,
+    String? dob,
+    UserRole? role,
+    String? condition,
+    String? bloodGroup,
+    String? emergencyContact,
+    String? caregiverId,
+    List<String>? patientIds,
+    String? relation,
+  }) {
+    return UserModel(
+      uid: uid,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
+      dob: dob ?? this.dob,
+      role: role ?? this.role,
+      condition: condition ?? this.condition,
+      bloodGroup: bloodGroup ?? this.bloodGroup,
+      emergencyContact: emergencyContact ?? this.emergencyContact,
+      caregiverId: caregiverId ?? this.caregiverId,
+      patientIds: patientIds ?? this.patientIds,
+      relation: relation ?? this.relation,
+      createdAt: createdAt,
+    );
+  }
+
+  bool get isPatient => role == UserRole.patient;
+  bool get isCaregiver => role == UserRole.caregiver;
+
+  String get roleLabel => role == UserRole.caregiver ? 'Caregiver' : 'Patient';
 }
-
-// class UserModel {
-//   final String? uid;
-//   final String? name;
-//   final String? email;
-//   final String? phone;
-//   final String? profileImage;
-//   final String? role; // patient, caregiver, admin
-//   final bool? isAdmin;
-
-//   // Patient Specific Fields
-//   final int? age;
-//   final String? condition;
-//   final String? bloodGroup;
-//   final String? emergencyContact;
-
-//   // Caregiver Specific Fields
-//   final String? relation; // son, daughter, wife etc
-
-//   const UserModel({
-//     this.uid,
-//     this.name,
-//     this.email,
-//     this.phone,
-//     this.profileImage,
-//     this.role,
-//     this.isAdmin,
-//     this.age,
-//     this.condition,
-//     this.bloodGroup,
-//     this.emergencyContact,
-//     this.relation,
-//   });
-
-//   UserModel copyWith({
-//     String? uid,
-//     String? name,
-//     String? email,
-//     String? phone,
-//     String? profileImage,
-//     String? role,
-//     bool? isAdmin,
-//     int? age,
-//     String? condition,
-//     String? bloodGroup,
-//     String? emergencyContact,
-//     String? relation,
-//   }) {
-//     return UserModel(
-//       uid: uid ?? this.uid,
-//       name: name ?? this.name,
-//       email: email ?? this.email,
-//       phone: phone ?? this.phone,
-//       profileImage: profileImage ?? this.profileImage,
-//       role: role ?? this.role,
-//       isAdmin: isAdmin ?? this.isAdmin,
-//       age: age ?? this.age,
-//       condition: condition ?? this.condition,
-//       bloodGroup: bloodGroup ?? this.bloodGroup,
-//       emergencyContact: emergencyContact ?? this.emergencyContact,
-//       relation: relation ?? this.relation,
-//     );
-//   }
-
-//   factory UserModel.fromMap(Map<String, dynamic> map) {
-//     return UserModel(
-//       uid: map['uid'],
-//       name: map['name'],
-//       email: map['email'],
-//       phone: map['phone'],
-//       profileImage: map['profileImage'],
-//       role: map['role'],
-//       isAdmin: map['isAdmin'],
-
-//       age: map['age'],
-//       condition: map['condition'],
-//       bloodGroup: map['bloodGroup'],
-//       emergencyContact: map['emergencyContact'],
-
-//       relation: map['relation'],
-//     );
-//   }
-
-//   Map<String, dynamic> toMap() {
-//     return {
-//       'uid': uid,
-//       'name': name,
-//       'email': email,
-//       'phone': phone,
-//       'profileImage': profileImage,
-//       'role': role,
-//       'isAdmin': isAdmin,
-
-//       'age': age,
-//       'condition': condition,
-//       'bloodGroup': bloodGroup,
-//       'emergencyContact': emergencyContact,
-
-//       'relation': relation,
-//     };
-//   }
-// }

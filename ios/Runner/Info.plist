@@ -66,5 +66,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+<string>LifeLinker needs camera access to monitor the patient</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>LifeLinker needs microphone access for voice communication</string>
 </dict>
 </plist>

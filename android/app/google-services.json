@@ -12,7 +12,20 @@
           "package_name": "com.example.lifelinker"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1026336901012-fgd18s5t3ru9c722nobpqa2hjmsup9j3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.lifelinker",
+            "certificate_hash": "a32cba1ef663237dad38a39d556368e71b72cd0b"
+          }
+        },
+        {
+          "client_id": "1026336901012-fo53vdsjobqmnvjenov6k9v7p3mil9hp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDr9FSuS-frS3fjEk0ySmRDvyVXrPTMLxw"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1026336901012-fo53vdsjobqmnvjenov6k9v7p3mil9hp.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1026336901012-96tpptf4ndf4de1bc7f7pc7jdn92677n.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.lifelinker"
+              }
+            }
+          ]
         }
       }
     }

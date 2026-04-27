@@ -1,33 +1,48 @@
-// ─── Mock API Service ──────────────────────────────────────────────────────
-
-import 'package:lifelinker/model/notifications.dart';
-import 'package:lifelinker/model/safe_zone.dart';
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:lifelinker/core/services/cloudinary_service.dart';
 import 'package:lifelinker/model/user.dart';
 
-class ProfileApiService {
-  static Future<UserModel> fetchProfile() async {
-    await Future.delayed(const Duration(milliseconds: 600));
-    return const UserModel(
-      caregiverName: 'Sarah Adeola',
-      caregiverEmail: 'sarah@example.com',
-      caregiverPhone: '+234 801 234 5678',
-      patientName: 'John Adeola',
-      patientAge: 72,
-      patientCondition: "Alzheimer's Disease",
-      patientBloodGroup: 'O+',
-      patientEmergencyContact: '+234 802 987 6543',
-    );
+class ProfileRepository {
+  static final _db = FirebaseFirestore.instance;
+
+  static Future<UserModel> fetchProfile(String uid) async {
+    final doc = await _db.collection('users').doc(uid).get();
+    if (!doc.exists || doc.data() == null) throw Exception('Profile not found');
+    return UserModel.fromMap(doc.data()!, uid);
   }
 
-  static Future<void> updateProfile(UserModel profile) async {
-    await Future.delayed(const Duration(milliseconds: 800));
-  }
+  static Future<UserModel> updateProfile({
+    required UserModel user,
+    File? newProfileImage,
+  }) async {
+    String? imageUrl = user.profileImageUrl;
 
-  static Future<void> updateSafeZone(SafeZoneModel settings) async {
-    await Future.delayed(const Duration(milliseconds: 600));
-  }
+    if (newProfileImage != null) {
+      try {
+        final bytes = await newProfileImage.readAsBytes();
+        imageUrl = await CloudinaryService.uploadImageToFolder(
+          path: newProfileImage.path,
+          fileBytes: bytes,
+          folder: 'lifelinker/profiles',
+          fileName: 'profile_${user.uid}',
+        );
+      } catch (_) {}
+    }
 
-  static Future<void> updateNotifications(NotificationModel s) async {
-    await Future.delayed(const Duration(milliseconds: 500));
+    final updated = user.copyWith(profileImageUrl: imageUrl);
+
+    await _db.collection('users').doc(user.uid).update({
+      'name': updated.name,
+      'phone': updated.phone,
+      'dob': updated.dob,
+      'condition': updated.condition,
+      'bloodGroup': updated.bloodGroup,
+      'emergencyContact': updated.emergencyContact,
+      'relation': updated.relation,
+      'profileImageUrl': updated.profileImageUrl,
+    });
+
+    return updated;
   }
 }

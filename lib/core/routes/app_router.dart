@@ -1,12 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:lifelinker/core/routes/routes_name.dart';
-import 'package:lifelinker/view/add%20medication/add_medication.dart';
-import 'package:lifelinker/view/auth/forgot_password.dart/forgot_password_view.dart';
-import 'package:lifelinker/view/auth/login/login_view.dart';
-import 'package:lifelinker/view/health_monitoring/health_data.dart';
-import 'package:lifelinker/view/splash/splash_view.dart';
-
-import '../widgets/app_text.dart';
+import 'package:lifelinker/core/services/shared_prefs_service.dart';
+import 'package:lifelinker/core/widgets/app_text.dart';
+import 'package:lifelinker/model/user.dart';
+import 'package:lifelinker/view/caregiver/add%20edit%20patient/add_edit_patient.dart';
+import 'package:lifelinker/view/caregiver/add%20medication/add_medication.dart';
+import 'package:lifelinker/view/caregiver/caregiver%20base%20nav/care_giver_base_nav.dart';
+import 'package:lifelinker/view/caregiver/health_monitoring/health_data.dart';
+import 'package:lifelinker/view/caregiver/moniter/caregiver_moniter.dart';
+import 'package:lifelinker/view/caregiver/patient%20details/patient_details.dart';
+import 'package:lifelinker/view/caregiver/profile/caregiver_profile.dart';
+import 'package:lifelinker/view/common/edit_profile/edit_profile.dart';
+import 'package:lifelinker/view/common/login/forgot_password.dart/forgot_password_view.dart';
+import 'package:lifelinker/view/common/login/login/login_view.dart';
+import 'package:lifelinker/view/common/onboarding/role_selection/role_selection.dart';
+import 'package:lifelinker/view/common/onboarding/signup%20flow/signup_flow.dart';
+import 'package:lifelinker/view/common/splash/splash_view.dart';
+import 'package:lifelinker/view/patient/home/patient_home.dart';
+import 'package:lifelinker/view/patient/patient%20base%20nav/patient_base_nav.dart';
+import 'package:lifelinker/view/patient/patient%20profile/patien_profile.dart';
 
 class AppRouter {
   AppRouter._();
@@ -21,6 +33,12 @@ class AppRouter {
       case RouteNames.login:
         builder = (_) => const LoginView();
         break;
+      case RouteNames.roleSelection:
+        builder = (_) => const RoleSelectionView();
+        break;
+      case RouteNames.signup:
+        builder = (_) => const SignupFlowView();
+        break;
       case RouteNames.forgotPassword:
         builder = (_) => const ForgotPasswordView();
         break;
@@ -29,6 +47,40 @@ class AppRouter {
         break;
       case RouteNames.addMedication:
         builder = (_) => const AddMedicationView();
+        break;
+      case RouteNames.caregiverBase:
+        builder = (_) => const CaregiverBaseView();
+        break;
+      case RouteNames.patientBase:
+        builder = (_) => const PatientBaseView();
+        break;
+      case RouteNames.addEditPatient:
+        final args = settings.arguments as Map<String, dynamic>?;
+        builder = (_) =>
+            AddEditPatientView(existingPatient: args?['patient'] as UserModel?);
+        break;
+      case RouteNames.patientDetails:
+        final patient = settings.arguments as UserModel;
+        builder = (_) => PatientDetailsView(patient: patient);
+        break;
+      case RouteNames.profile:
+        final role = SharedPrefsService.getUserRole();
+        builder = (_) => role == 'caregiver'
+            ? const CaregiverProfileView()
+            : const PatientProfileView();
+        break;
+      case RouteNames.editProfile:
+        builder = (_) => const EditProfileView();
+        break;
+      case RouteNames.patientHome:
+        builder = (_) => const PatientHomeView();
+        break;
+      case RouteNames.caregiverMonitor:
+        final args = settings.arguments as Map<String, dynamic>;
+        builder = (_) => CaregiverMonitorView(
+          patient: args['patient'] as UserModel,
+          caregiverId: args['caregiverId'] as String,
+        );
         break;
       default:
         builder = (_) =>
