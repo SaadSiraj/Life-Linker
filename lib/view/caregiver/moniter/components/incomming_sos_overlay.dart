@@ -43,29 +43,24 @@ class IncomingPatientSosOverlay extends StatelessWidget {
                     align: TextAlign.center,
                   ),
                   Spacing.y(5),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      GestureDetector(
-                        onTap: provider.acknowledgeAlert,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: SizeConfig.widthMultiplier * 8,
-                            vertical: SizeConfig.heightMultiplier * 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: AppText(
-                            'Acknowledged',
-                            size: 15,
-                            color: AppColors.alert,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
+                  GestureDetector(
+                    onTap: provider.acknowledgeAlert,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: SizeConfig.widthMultiplier * 8,
+                        vertical: SizeConfig.heightMultiplier * 2,
                       ),
-                    ],
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: AppText(
+                        'Acknowledged',
+                        size: 15,
+                        color: AppColors.alert,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
                 ],
               ),

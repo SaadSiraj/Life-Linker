@@ -6,19 +6,22 @@ import 'package:lifelinker/core/services/shared_prefs_service.dart';
 import 'package:lifelinker/core/utils/size_config.dart';
 import 'package:lifelinker/firebase_options.dart';
 import 'package:lifelinker/provider/add_edit_patient.dart';
-import 'package:lifelinker/provider/camera.dart';
 import 'package:lifelinker/provider/caregiver_base_nav.dart';
 import 'package:lifelinker/provider/caregiver_patient.dart';
+import 'package:lifelinker/provider/caregiver_stream.dart';
 import 'package:lifelinker/provider/dashboard.dart';
+import 'package:lifelinker/provider/dite_plan.dart';
 import 'package:lifelinker/provider/edit_profile.dart';
 import 'package:lifelinker/provider/forgot_password.dart';
-import 'package:lifelinker/provider/health_data.dart';
+import 'package:lifelinker/provider/health.dart';
 import 'package:lifelinker/provider/location.dart';
 import 'package:lifelinker/provider/login.dart';
 import 'package:lifelinker/provider/medication.dart';
 import 'package:lifelinker/provider/patient_base_nave.dart';
+import 'package:lifelinker/provider/patient_stream.dart';
 import 'package:lifelinker/provider/profile.dart';
 import 'package:lifelinker/provider/signup.dart';
+import 'package:lifelinker/provider/sleep_provider.dart';
 import 'package:lifelinker/provider/sos.dart';
 import 'package:lifelinker/provider/voice_message.dart';
 import 'package:provider/provider.dart';
@@ -53,7 +56,7 @@ class MyApp extends StatelessWidget {
                 ChangeNotifierProvider(create: (_) => DashboardProvider()),
                 ChangeNotifierProvider(create: (_) => MedicationProvider()),
                 ChangeNotifierProvider(create: (_) => LocationProvider()),
-                ChangeNotifierProvider(create: (_) => HealthDataProvider()),
+                ChangeNotifierProvider(create: (_) => HealthProvider()),
                 ChangeNotifierProvider(
                   create: (_) => CaregiverPatientsProvider(),
                 ),
@@ -63,7 +66,12 @@ class MyApp extends StatelessWidget {
                 ChangeNotifierProvider(create: (_) => PatientNavProvider()),
                 ChangeNotifierProvider(create: (_) => VoiceMessageProvider()),
                 ChangeNotifierProvider(create: (_) => SosProvider()),
-                ChangeNotifierProvider(create: (_) => CameraProvider()),
+                ChangeNotifierProvider(create: (_) => PatientStreamProvider()),
+                ChangeNotifierProvider(
+                  create: (_) => CaregiverStreamProvider(),
+                ),
+                ChangeNotifierProvider(create: (_) => DietPlanProvider()),
+                ChangeNotifierProvider(create: (_) => SleepProvider()),
               ],
               child: MaterialApp(
                 debugShowCheckedModeBanner: false,

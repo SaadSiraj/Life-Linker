@@ -40,8 +40,8 @@ class PatientVoiceButton extends StatelessWidget {
                 onTapCancel: () => provider.cancelRecording(),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  width: SizeConfig.widthMultiplier * 22,
-                  height: SizeConfig.widthMultiplier * 22,
+                  width: SizeConfig.widthMultiplier * 20,
+                  height: SizeConfig.widthMultiplier * 20,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: isRecording
@@ -54,7 +54,7 @@ class PatientVoiceButton extends StatelessWidget {
                                     ? AppColors.successDark
                                     : AppColors.primary)
                                 .withOpacity(0.35),
-                        blurRadius: isRecording ? 20 : 12,
+                        blurRadius: isRecording ? 20 : 10,
                         offset: const Offset(0, 4),
                       ),
                     ],
@@ -69,7 +69,7 @@ class PatientVoiceButton extends StatelessWidget {
                       : Icon(
                           isRecording ? Icons.mic : Icons.mic_none_rounded,
                           color: Colors.white,
-                          size: SizeConfig.widthMultiplier * 10,
+                          size: SizeConfig.widthMultiplier * 9,
                         ),
                 ),
               ),
@@ -79,8 +79,8 @@ class PatientVoiceButton extends StatelessWidget {
                     ? 'Release to send'
                     : isSending
                     ? 'Sending...'
-                    : 'Hold to speak',
-                size: 13,
+                    : 'Hold to speak to caregiver',
+                size: 12,
                 color: isRecording ? AppColors.successDark : AppColors.iconGrey,
                 fontWeight: FontWeight.w500,
               ),

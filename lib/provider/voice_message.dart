@@ -22,8 +22,6 @@ class VoiceMessageProvider extends ChangeNotifier {
   bool get isPlayingIncoming => _isPlayingIncoming;
   String? get errorMessage => _errorMessage;
 
-  // ── Start listening for incoming voice messages ───────────────────────────
-
   void startListeningForIncomingVoice({
     required String patientId,
     required String caregiverId,

@@ -12,10 +12,17 @@ class RouteNames {
   static const String addMedication = '/add-medication';
   static const String patientBase = '/patient-base';
   static const String caregiverBase = '/caregiver-base';
-  static const String addEditPatient = '/add-edit-patient';
   static const String patientDetails = '/patient-details';
   static const String profile = '/profile';
   static const String editProfile = '/edit-profile';
   static const String patientHome = '/patient-home';
   static const String caregiverMonitor = '/caregiver-monitor';
+  static const String caregiverMedication = '/caregiver-medication';
+  static const String patientMedication = '/patient-medication';
+  static const String caregiverHealth = '/caregiver-health';
+  static const String patientHealth = '/patient-health';
+  static const String caregiverDiet = '/caregiver-diet';
+  static const String patientDiet = '/patient-diet';
+  static const String caregiverSleep = '/caregiver-sleep';
+  static const String patientSleep = '/patient-sleep';
 }

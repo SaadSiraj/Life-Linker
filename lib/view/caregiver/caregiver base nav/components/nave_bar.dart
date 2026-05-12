@@ -26,11 +26,17 @@ class CaregiverNavBar extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
+              // _CgNavItem(
+              //   index: 0,
+              //   icon: Icons.dashboard_outlined,
+              //   activeIcon: Icons.dashboard_rounded,
+              //   label: 'Home',
+              // ),
               _CgNavItem(
                 index: 0,
-                icon: Icons.dashboard_outlined,
-                activeIcon: Icons.dashboard_rounded,
-                label: 'Home',
+                icon: Icons.supervised_user_circle_outlined,
+                activeIcon: Icons.people_rounded,
+                label: 'Patients',
               ),
               _CgNavItem(
                 index: 1,
@@ -38,17 +44,12 @@ class CaregiverNavBar extends StatelessWidget {
                 activeIcon: Icons.location_on_rounded,
                 label: 'Location',
               ),
-              const _CenterNavItem(),
+
+              // const _CenterNavItem(),
               _CgNavItem(
-                index: 3,
-                icon: Icons.supervised_user_circle_outlined,
-                activeIcon: Icons.people_rounded,
-                label: 'Patients',
-              ),
-              _CgNavItem(
-                index: 4,
-                icon: Icons.verified_user,
-                activeIcon: Icons.supervised_user_circle_rounded,
+                index: 2,
+                icon: Icons.person_outline_rounded,
+                activeIcon: Icons.person_rounded,
                 label: 'Profile',
               ),
             ],
@@ -129,43 +130,46 @@ class _CgNavItem extends StatelessWidget {
   }
 }
 
-class _CenterNavItem extends StatelessWidget {
-  const _CenterNavItem();
+// class _CenterNavItem extends StatelessWidget {
+//   const _CenterNavItem();
 
-  @override
-  Widget build(BuildContext context) {
-    final provider = context.watch<CareGiverBaseNavProvider>();
-    final isActive = provider.currentIndex == 2;
+//   @override
+//   Widget build(BuildContext context) {
+//     final provider = context.watch<CareGiverBaseNavProvider>();
+//     // Center button is active when navIndex is 2 or 3 (both show Patients)
+//     final isActive = provider.currentIndex == 2 || provider.currentIndex == 3;
 
-    return GestureDetector(
-      onTap: () => provider.setIndex(2),
-      child: Container(
-        width: SizeConfig.widthMultiplier * 14,
-        height: SizeConfig.widthMultiplier * 14,
-        margin: EdgeInsets.symmetric(
-          horizontal: SizeConfig.widthMultiplier * 2,
-        ),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primary.withOpacity(0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Icon(
-          isActive ? Icons.medication_rounded : Icons.medication_outlined,
-          color: Colors.white,
-          size: SizeConfig.widthMultiplier * 7,
-        ),
-      ),
-    );
-  }
-}
+//     return GestureDetector(
+//       onTap: () => provider.setIndex(2),
+//       child: Container(
+//         width: SizeConfig.widthMultiplier * 14,
+//         height: SizeConfig.widthMultiplier * 14,
+//         margin: EdgeInsets.symmetric(
+//           horizontal: SizeConfig.widthMultiplier * 2,
+//         ),
+//         decoration: BoxDecoration(
+//           gradient: LinearGradient(
+//             colors: isActive
+//                 ? [AppColors.primaryDark, AppColors.primary]
+//                 : [AppColors.primary, AppColors.primary.withOpacity(0.8)],
+//             begin: Alignment.topLeft,
+//             end: Alignment.bottomRight,
+//           ),
+//           shape: BoxShape.circle,
+//           boxShadow: [
+//             BoxShadow(
+//               color: AppColors.primary.withOpacity(isActive ? 0.5 : 0.3),
+//               blurRadius: isActive ? 16 : 12,
+//               offset: const Offset(0, 4),
+//             ),
+//           ],
+//         ),
+//         child: Icon(
+//           isActive ? Icons.people_rounded : Icons.people_outline_rounded,
+//           color: Colors.white,
+//           size: SizeConfig.widthMultiplier * 7,
+//         ),
+//       ),
+//     );
+//   }
+// }

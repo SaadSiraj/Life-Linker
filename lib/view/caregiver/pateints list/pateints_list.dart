@@ -6,6 +6,7 @@ import 'package:lifelinker/core/widgets/app_text.dart';
 import 'package:lifelinker/model/user.dart';
 import 'package:lifelinker/provider/caregiver_patient.dart';
 import 'package:lifelinker/view/caregiver/add%20edit%20patient/add_edit_patient.dart';
+import 'package:lifelinker/view/caregiver/pateints%20list/components/tile.dart';
 import 'package:lifelinker/view/caregiver/patient%20details/patient_details.dart';
 import 'package:provider/provider.dart';
 
@@ -40,7 +41,7 @@ class _PatientsListViewState extends State<PatientsListView> {
           builder: (context, provider, _) {
             return Column(
               children: [
-                _buildHeader(context),
+                _buildHeader(),
                 Expanded(child: _buildBody(context, provider)),
               ],
             );
@@ -51,7 +52,7 @@ class _PatientsListViewState extends State<PatientsListView> {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader() {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(
@@ -92,7 +93,7 @@ class _PatientsListViewState extends State<PatientsListView> {
             ),
           ),
           Container(
-            padding: EdgeInsets.all(SizeConfig.widthMultiplier * 2),
+            padding: EdgeInsets.all(SizeConfig.widthMultiplier * 2.5),
             decoration: BoxDecoration(
               color: AppColors.primary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
@@ -164,13 +165,18 @@ class _PatientsListViewState extends State<PatientsListView> {
       onRefresh: provider.refresh,
       color: AppColors.primary,
       child: ListView.separated(
-        padding: EdgeInsets.all(SizeConfig.widthMultiplier * 4),
+        padding: EdgeInsets.fromLTRB(
+          SizeConfig.widthMultiplier * 4,
+          SizeConfig.heightMultiplier * 2,
+          SizeConfig.widthMultiplier * 4,
+          SizeConfig.heightMultiplier * 10,
+        ),
         itemCount: provider.patients.length,
         separatorBuilder: (_, _) =>
-            SizedBox(height: SizeConfig.heightMultiplier * 1.5),
+            SizedBox(height: SizeConfig.heightMultiplier * 1.8),
         itemBuilder: (context, index) {
           final patient = provider.patients[index];
-          return _PatientTile(
+          return PatientTile(
             patient: patient,
             onTap: () => _openPatientDetails(context, patient),
           );
@@ -280,145 +286,5 @@ class _PatientsListViewState extends State<PatientsListView> {
     if (updated != null && context.mounted) {
       context.read<CaregiverPatientsProvider>().updatePatientLocally(updated);
     }
-  }
-}
-
-class _PatientTile extends StatelessWidget {
-  final UserModel patient;
-  final VoidCallback onTap;
-
-  const _PatientTile({required this.patient, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.all(SizeConfig.widthMultiplier * 4),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: const [
-            BoxShadow(
-              color: AppColors.shadowStrong,
-              blurRadius: 8,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            _buildAvatar(),
-            SizedBox(width: SizeConfig.widthMultiplier * 3.5),
-            Expanded(child: _buildInfo()),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: AppColors.iconGrey,
-              size: SizeConfig.widthMultiplier * 6,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAvatar() {
-    return Container(
-      width: SizeConfig.widthMultiplier * 14,
-      height: SizeConfig.widthMultiplier * 14,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: AppColors.primary.withOpacity(0.1),
-        image: patient.profileImageUrl != null
-            ? DecorationImage(
-                image: NetworkImage(patient.profileImageUrl!),
-                fit: BoxFit.cover,
-              )
-            : null,
-      ),
-      child: patient.profileImageUrl == null
-          ? Icon(
-              Icons.person_rounded,
-              color: AppColors.primary,
-              size: SizeConfig.widthMultiplier * 7,
-            )
-          : null,
-    );
-  }
-
-  Widget _buildInfo() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AppText(
-          patient.name,
-          size: 15,
-          color: AppColors.textDark,
-          fontWeight: FontWeight.w700,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        SizedBox(height: SizeConfig.heightMultiplier * 0.4),
-        if (patient.condition != null)
-          AppText(
-            patient.condition!,
-            size: 12,
-            color: AppColors.iconGrey,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        SizedBox(height: SizeConfig.heightMultiplier * 0.4),
-        Row(
-          children: [
-            if (patient.bloodGroup != null) ...[
-              _InfoChip(
-                label: patient.bloodGroup!,
-                color: AppColors.alertLight,
-                textColor: AppColors.alert,
-              ),
-              SizedBox(width: SizeConfig.widthMultiplier * 2),
-            ],
-            if (patient.dob != null)
-              _InfoChip(
-                label: patient.dob!,
-                color: AppColors.blueLight,
-                textColor: AppColors.blue,
-              ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _InfoChip extends StatelessWidget {
-  final String label;
-  final Color color;
-  final Color textColor;
-
-  const _InfoChip({
-    required this.label,
-    required this.color,
-    required this.textColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: SizeConfig.widthMultiplier * 2,
-        vertical: SizeConfig.heightMultiplier * 0.3,
-      ),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: AppText(
-        label,
-        size: 10,
-        color: textColor,
-        fontWeight: FontWeight.w600,
-      ),
-    );
   }
 }

@@ -1,204 +1,168 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:lifelinker/core/constants/app_colors.dart';
-import 'package:lifelinker/model/med_history.dart';
-import 'package:lifelinker/model/medication.dart';
-import 'package:lifelinker/model/scheduled_medication.dart';
-import 'package:lifelinker/model/time_slot.dart';
-import 'package:lifelinker/model/week_log.dart';
+import 'package:lifelinker/core/widgets/custom_snackbar.dart';
+import 'package:lifelinker/model/medication_log.dart';
+import 'package:lifelinker/model/medication_scheduled.dart';
+import 'package:lifelinker/repository/medication_repo.dart';
 
 class MedicationProvider extends ChangeNotifier {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController dosageController = TextEditingController();
+  List<MedicationScheduleModel> _medications = [];
+  List<MedicationLogModel> _todayLogs = [];
+  bool _isLoading = false;
+  bool _isSaving = false;
+  String? _patientId;
 
-  String _selectedFrequency = 'Daily';
-  TimeOfDay _selectedTime = const TimeOfDay(hour: 8, minute: 0);
-  int _currentTabIndex = 0;
+  StreamSubscription<List<MedicationScheduleModel>>? _medSub;
+  StreamSubscription<List<MedicationLogModel>>? _logSub;
 
-  String get selectedFrequency => _selectedFrequency;
-  TimeOfDay get selectedTime => _selectedTime;
-  int get currentTabIndex => _currentTabIndex;
+  List<MedicationScheduleModel> get medications => _medications;
+  List<MedicationLogModel> get todayLogs => _todayLogs;
+  bool get isLoading => _isLoading;
+  bool get isSaving => _isSaving;
 
-  // ─── Medication List ────────────────────────────────────────────────────────
-
-  List<MedicationModel> get medications => [
-    MedicationModel(
-      name: 'Agpin Doe',
-      time: '1:00 PM',
-      color: AppColors.success,
-      icon: Icons.medication_rounded,
-      status: MedStatus.none,
-    ),
-    MedicationModel(
-      name: 'Vitamin D',
-      time: '12:00 PM',
-      color: AppColors.primary,
-      icon: Icons.sunny_snowing,
-      status: MedStatus.taken,
-    ),
-    MedicationModel(
-      name: 'Atorvastatin',
-      time: '8:00 PM',
-      color: AppColors.primary,
-      icon: Icons.water_drop_rounded,
-      status: MedStatus.missed,
-    ),
-  ];
-
-  // ─── Weekly Log ─────────────────────────────────────────────────────────────
-
-  List<WeekLogModel> get weekLogs => [
-    WeekLogModel(
-      dayLabel: 'M',
-      color: AppColors.success,
-      icon: Icons.check_rounded,
-    ),
-    WeekLogModel(
-      dayLabel: 'T',
-      color: AppColors.success,
-      icon: Icons.check_rounded,
-    ),
-    WeekLogModel(
-      dayLabel: 'W',
-      color: AppColors.alert,
-      icon: Icons.close_rounded,
-    ),
-    WeekLogModel(
-      dayLabel: 'T',
-      color: AppColors.success,
-      icon: Icons.check_rounded,
-    ),
-    WeekLogModel(
-      dayLabel: 'F',
-      color: AppColors.success,
-      icon: Icons.check_rounded,
-    ),
-    WeekLogModel(
-      dayLabel: 'S',
-      color: AppColors.pending,
-      icon: Icons.remove_rounded,
-    ),
-    WeekLogModel(
-      dayLabel: 'S',
-      color: AppColors.border,
-      icon: Icons.circle_outlined,
-    ),
-  ];
-
-  String get adherenceLabel => '5 out of 6 — 83% adherence';
-
-  // ─── Scheduled Medications ──────────────────────────────────────────────────
-
-  List<ScheduledMedicationModel> get scheduledMedications => [
-    ScheduledMedicationModel(
-      name: 'Donepezil',
-      time: '8:00 AM',
-      color: AppColors.purple,
-      icon: Icons.medication_liquid_rounded,
-      status: MedStatus.pending,
-    ),
-    ScheduledMedicationModel(
-      name: 'Vitamin D',
-      time: '11:00 PM',
-      color: AppColors.success,
-      icon: Icons.check_circle_rounded,
-      status: MedStatus.taken,
-    ),
-    ScheduledMedicationModel(
-      name: 'Atorvastatin',
-      time: '8:00 PM',
-      color: AppColors.alert,
-      icon: Icons.lock_rounded,
-      status: MedStatus.missed,
-    ),
-  ];
-
-  // ─── Time Slots ─────────────────────────────────────────────────────────────
-
-  List<TimeSlotModel> get timeSlots => const [
-    TimeSlotModel(time: '8:00 AM', medications: ['Donepezil 5mg']),
-    TimeSlotModel(
-      time: '12:00 PM',
-      medications: ['Vitamin D 1000IU', 'Omega-3'],
-    ),
-    TimeSlotModel(time: '8:00 PM', medications: ['Atorvastatin 20mg']),
-    TimeSlotModel(time: '10:00 PM', medications: ['Melatonin 5mg']),
-  ];
-
-  // ─── History ────────────────────────────────────────────────────────────────
-
-  List<MedHistoryGroupModel> get historyGroups => [
-    MedHistoryGroupModel(
-      dateLabel: 'Today',
-      items: [
-        const MedHistoryItemModel(
-          name: 'Donepezil',
-          time: '8:00 AM',
-          status: MedStatus.taken,
-        ),
-        const MedHistoryItemModel(
-          name: 'Vitamin D',
-          time: '11:00 AM',
-          status: MedStatus.taken,
-        ),
-        const MedHistoryItemModel(
-          name: 'Atorvastatin',
-          time: '8:00 PM',
-          status: MedStatus.missed,
-        ),
-      ],
-    ),
-    MedHistoryGroupModel(
-      dateLabel: 'Yesterday',
-      items: [
-        const MedHistoryItemModel(
-          name: 'Donepezil',
-          time: '8:00 AM',
-          status: MedStatus.taken,
-        ),
-        const MedHistoryItemModel(
-          name: 'Vitamin D',
-          time: '11:00 AM',
-          status: MedStatus.taken,
-        ),
-        const MedHistoryItemModel(
-          name: 'Atorvastatin',
-          time: '8:00 PM',
-          status: MedStatus.taken,
-        ),
-      ],
-    ),
-  ];
-
-  // ─── Actions ────────────────────────────────────────────────────────────────
-
-  void setFrequency(String value) {
-    _selectedFrequency = value;
+  void initialize(String patientId) {
+    if (_patientId == patientId) return;
+    _patientId = patientId;
+    _isLoading = true;
     notifyListeners();
+    _medSub?.cancel();
+    _logSub?.cancel();
+    _medSub = MedicationRepository.listenToMedications(patientId).listen((
+      list,
+    ) {
+      _medications = list;
+      _isLoading = false;
+      notifyListeners();
+    });
+    _logSub = MedicationRepository.listenToTodayLogs(patientId).listen((list) {
+      _todayLogs = list;
+      notifyListeners();
+    });
   }
 
-  void setTime(TimeOfDay value) {
-    _selectedTime = value;
-    notifyListeners();
+  MedicationLogModel? getLogForSlot(String medicationId, String time) {
+    final dateKey = _todayDateKey();
+    final id = '${medicationId}_${dateKey}_$time';
+    try {
+      return _todayLogs.firstWhere((l) => l.id == id);
+    } catch (_) {
+      return null;
+    }
   }
 
-  void setTabIndex(int index) {
-    _currentTabIndex = index;
-    notifyListeners();
+  String _todayDateKey() {
+    final now = DateTime.now();
+    return '${now.year}-${now.month}-${now.day}';
   }
 
-  void saveMedication() {
-    // TODO: Persist medication to backend
-    nameController.clear();
-    dosageController.clear();
-    _selectedFrequency = 'Daily';
-    _selectedTime = const TimeOfDay(hour: 8, minute: 0);
+  double get todayAdherenceRate {
+    if (_todayLogs.isEmpty) return 0;
+    final taken = _todayLogs.where((l) => l.isTaken).length;
+    return taken / _todayLogs.length;
+  }
+
+  Future<void> addMedication({
+    required BuildContext context,
+    required String patientId,
+    required String caregiverId,
+    required String name,
+    required String dosage,
+    required MedicationFrequency frequency,
+    required List<String> times,
+    String? notes,
+    required VoidCallback onSuccess,
+  }) async {
+    _isSaving = true;
     notifyListeners();
+    try {
+      final med = MedicationScheduleModel(
+        id: '',
+        patientId: patientId,
+        caregiverId: caregiverId,
+        name: name,
+        dosage: dosage,
+        frequency: frequency,
+        times: times,
+        notes: notes,
+        isActive: true,
+        createdAt: DateTime.now(),
+      );
+      await MedicationRepository.addMedication(med);
+      _isSaving = false;
+      notifyListeners();
+      onSuccess();
+    } catch (_) {
+      _isSaving = false;
+      notifyListeners();
+      if (context.mounted) {
+        showCustomSnackbar(context, true, 'Failed to add medication');
+      }
+    }
+  }
+
+  Future<void> updateMedication({
+    required BuildContext context,
+    required MedicationScheduleModel medication,
+    required VoidCallback onSuccess,
+  }) async {
+    _isSaving = true;
+    notifyListeners();
+    try {
+      await MedicationRepository.updateMedication(medication);
+      _isSaving = false;
+      notifyListeners();
+      onSuccess();
+    } catch (_) {
+      _isSaving = false;
+      notifyListeners();
+      if (context.mounted) {
+        showCustomSnackbar(context, true, 'Failed to update medication');
+      }
+    }
+  }
+
+  Future<void> deleteMedication({
+    required BuildContext context,
+    required String medicationId,
+  }) async {
+    try {
+      await MedicationRepository.deleteMedication(medicationId);
+    } catch (_) {
+      if (context.mounted) {
+        showCustomSnackbar(context, true, 'Failed to delete medication');
+      }
+    }
+  }
+
+  Future<void> markMedication({
+    required BuildContext context,
+    required MedicationScheduleModel medication,
+    required String time,
+    required MedicationStatus status,
+  }) async {
+    if (_patientId == null) return;
+    try {
+      await MedicationRepository.logMedicationStatus(
+        medicationId: medication.id,
+        patientId: _patientId!,
+        medicationName: medication.name,
+        dosage: medication.dosage,
+        scheduledTime: time,
+        status: status,
+        scheduledDate: DateTime.now(),
+      );
+    } catch (_) {
+      if (context.mounted) {
+        showCustomSnackbar(context, true, 'Failed to update status');
+      }
+    }
   }
 
   @override
   void dispose() {
-    nameController.dispose();
-    dosageController.dispose();
+    _medSub?.cancel();
+    _logSub?.cancel();
     super.dispose();
   }
 }

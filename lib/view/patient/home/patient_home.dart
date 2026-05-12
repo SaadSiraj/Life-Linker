@@ -1,4 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lifelinker/core/constants/app_colors.dart';
@@ -8,12 +9,14 @@ import 'package:lifelinker/core/utils/spacing.dart';
 import 'package:lifelinker/core/widgets/app_text.dart';
 import 'package:lifelinker/model/sos_alert.dart';
 import 'package:lifelinker/model/voice_message.dart';
-import 'package:lifelinker/provider/camera.dart';
+import 'package:lifelinker/provider/patient_stream.dart';
+import 'package:lifelinker/provider/profile.dart';
 import 'package:lifelinker/provider/sos.dart';
 import 'package:lifelinker/provider/voice_message.dart';
-import 'package:lifelinker/view/patient/home/components/camera.dart';
+import 'package:lifelinker/view/patient/home/components/camera_preview.dart';
+import 'package:lifelinker/view/patient/home/components/incoming_sos.dart';
 import 'package:lifelinker/view/patient/home/components/sos_button.dart';
-import 'package:lifelinker/view/patient/home/components/sos_overlay.dart';
+import 'package:lifelinker/view/patient/home/components/stream_status_badge.dart';
 import 'package:lifelinker/view/patient/home/components/voice_button.dart';
 import 'package:provider/provider.dart';
 
@@ -24,9 +27,14 @@ class PatientHomeView extends StatefulWidget {
   State<PatientHomeView> createState() => _PatientHomeViewState();
 }
 
-class _PatientHomeViewState extends State<PatientHomeView> {
+class _PatientHomeViewState extends State<PatientHomeView>
+    with WidgetsBindingObserver {
   String? _patientId;
   String? _caregiverId;
+  bool _initialized = false;
+  late PatientStreamProvider _streamProvider;
+  late VoiceMessageProvider _voiceProvider;
+  late SosProvider _sosProvider;
 
   @override
   void initState() {
@@ -37,49 +45,107 @@ class _PatientHomeViewState extends State<PatientHomeView> {
         statusBarIconBrightness: Brightness.dark,
       ),
     );
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) => _initialize());
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _streamProvider = context.read<PatientStreamProvider>();
+    _voiceProvider = context.read<VoiceMessageProvider>();
+    _sosProvider = context.read<SosProvider>();
+  }
+
   Future<void> _initialize() async {
+    if (_initialized && _patientId != null && _caregiverId != null) {
+      _ensureStreaming();
+      return;
+    }
+
     _patientId = SharedPrefsService.getUID();
     if (_patientId == null) return;
 
     try {
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(_patientId)
-          .get();
-      if (doc.exists && doc.data() != null) {
-        _caregiverId = doc.data()!['caregiverId'] as String?;
-      }
+      final profileProvider = context.read<ProfileProvider>();
+      await profileProvider.loadProfile();
+      _caregiverId = profileProvider.user?.caregiverId;
     } catch (_) {
-      _caregiverId = null;
+      return;
     }
 
     if (_caregiverId == null || _caregiverId!.isEmpty) return;
+    if (!mounted) return;
 
-    context.read<CameraProvider>().startCamera(_patientId!);
+    _initialized = true;
+    setState(() {});
+    _startAllProviders();
+  }
 
-    context.read<VoiceMessageProvider>().startListeningForIncomingVoice(
+  void _startAllProviders() {
+    if (_patientId == null || _caregiverId == null) return;
+
+    if (!_streamProvider.isStreaming && !_streamProvider.isPaused) {
+      _streamProvider.startStreaming(
+        patientId: _patientId!,
+        caregiverId: _caregiverId!,
+      );
+    }
+    _voiceProvider.startListeningForIncomingVoice(
       patientId: _patientId!,
       caregiverId: _caregiverId!,
       targetSender: VoiceMessageSender.caregiver,
     );
-
-    context.read<SosProvider>().startListeningForSos(
+    _sosProvider.startListeningForSos(
       patientId: _patientId!,
       caregiverId: _caregiverId!,
       targetType: SosAlertType.caregiverToPatient,
     );
   }
 
+  void _ensureStreaming() {
+    if (_streamProvider.isPaused) return;
+    if (!_streamProvider.isStreaming && !_streamProvider.isInitializing) {
+      _streamProvider.stopStreaming().then((_) {
+        if (mounted && _patientId != null && _caregiverId != null) {
+          _streamProvider.startStreaming(
+            patientId: _patientId!,
+            caregiverId: _caregiverId!,
+          );
+        }
+      });
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    if (state == AppLifecycleState.paused) {
+    } else if (state == AppLifecycleState.resumed) {
+      if (_patientId == null || _caregiverId == null) return;
+      await _streamProvider.stopStreaming();
+      _streamProvider.startStreaming(
+        patientId: _patientId!,
+        caregiverId: _caregiverId!,
+      );
+      _voiceProvider.startListeningForIncomingVoice(
+        patientId: _patientId!,
+        caregiverId: _caregiverId!,
+        targetSender: VoiceMessageSender.caregiver,
+      );
+      _sosProvider.startListeningForSos(
+        patientId: _patientId!,
+        caregiverId: _caregiverId!,
+        targetType: SosAlertType.caregiverToPatient,
+      );
+    }
+  }
+
   @override
   void dispose() {
-    if (_patientId != null) {
-      context.read<CameraProvider>().stopCamera(_patientId!);
-    }
-    context.read<VoiceMessageProvider>().stopListening();
-    context.read<SosProvider>().stopListening();
+    WidgetsBinding.instance.removeObserver(this);
+    _streamProvider.stopStreaming();
+    _voiceProvider.stopListening();
+    _sosProvider.stopListening();
     super.dispose();
   }
 
@@ -94,7 +160,12 @@ class _PatientHomeViewState extends State<PatientHomeView> {
               children: [
                 _buildHeader(),
                 Spacing.y(2),
-                const Expanded(child: PatientCameraView()),
+                Expanded(
+                  child: PatientCameraPreview(
+                    patientId: _patientId ?? '',
+                    caregiverId: _caregiverId ?? '',
+                  ),
+                ),
                 Spacing.y(2),
                 PatientSosButton(
                   patientId: _patientId ?? '',
@@ -109,7 +180,7 @@ class _PatientHomeViewState extends State<PatientHomeView> {
               ],
             ),
           ),
-          const IncomingSosOverlay(),
+          const IncomingCaregiverSosOverlay(),
         ],
       ),
     );
@@ -135,73 +206,38 @@ class _PatientHomeViewState extends State<PatientHomeView> {
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(SizeConfig.widthMultiplier * 2),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
+            width: SizeConfig.widthMultiplier * 10,
+            height: SizeConfig.widthMultiplier * 10,
+            decoration: const BoxDecoration(
+              gradient: AppColors.primaryGradient,
+              shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.health_and_safety_rounded,
-              color: AppColors.primary,
-              size: SizeConfig.widthMultiplier * 6,
+              color: Colors.white,
+              size: SizeConfig.widthMultiplier * 5,
             ),
           ),
           Spacing.x(3),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AppText(
-                'LifeLinker',
-                size: 16,
-                color: AppColors.textDark,
-                fontWeight: FontWeight.w700,
-              ),
-              AppText(
-                'You are being monitored',
-                size: 11,
-                color: AppColors.iconGrey,
-              ),
-            ],
-          ),
-          const Spacer(),
-          Consumer<CameraProvider>(
-            builder: (context, provider, _) => Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: SizeConfig.widthMultiplier * 3,
-                vertical: SizeConfig.heightMultiplier * 0.5,
-              ),
-              decoration: BoxDecoration(
-                color: provider.isCameraActive
-                    ? AppColors.successLight
-                    : AppColors.alertLight,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: SizeConfig.widthMultiplier * 2,
-                    height: SizeConfig.widthMultiplier * 2,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: provider.isCameraActive
-                          ? AppColors.successDark
-                          : AppColors.alert,
-                    ),
-                  ),
-                  Spacing.x(1.5),
-                  AppText(
-                    provider.isCameraActive ? 'Live' : 'Offline',
-                    size: 11,
-                    color: provider.isCameraActive
-                        ? AppColors.successDark
-                        : AppColors.alert,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ],
-              ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AppText(
+                  'LifeLinker',
+                  size: 18,
+                  color: AppColors.textDark,
+                  fontWeight: FontWeight.w700,
+                ),
+                AppText(
+                  'You are being monitored',
+                  size: 11,
+                  color: AppColors.iconGrey,
+                ),
+              ],
             ),
           ),
+          const StreamStatusBadge(),
         ],
       ),
     );

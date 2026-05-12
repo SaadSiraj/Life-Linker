@@ -11,7 +11,6 @@ class PatientNavProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Returns true if the app should exit, false to show snackbar.
   Future<bool> handleBackPress(BuildContext context) async {
     final now = DateTime.now();
     if (_lastPressed == null ||
@@ -21,4 +20,6 @@ class PatientNavProvider extends ChangeNotifier {
     }
     return true;
   }
+
+  
 }

@@ -1,5 +1,3 @@
-// ── nave_bar.dart (patient) ───────────────────────────────────────────────────
-
 import 'package:flutter/material.dart';
 import 'package:lifelinker/core/constants/app_colors.dart';
 import 'package:lifelinker/core/utils/size_config.dart';
@@ -30,21 +28,27 @@ class PatientNavBar extends StatelessWidget {
             children: const [
               _PatNavItem(
                 index: 0,
-                icon: Icons.dashboard_outlined,
-                activeIcon: Icons.dashboard_rounded,
+                icon: Icons.home_outlined,
+                activeIcon: Icons.home_rounded,
                 label: 'Home',
               ),
               _PatNavItem(
                 index: 1,
-                icon: Icons.person_outline_rounded,
-                activeIcon: Icons.person_rounded,
-                label: 'Profile',
+                icon: Icons.medical_services_outlined,
+                activeIcon: Icons.medical_services_rounded,
+                label: 'Health',
               ),
               _PatNavItem(
                 index: 2,
-                icon: Icons.settings_outlined,
-                activeIcon: Icons.settings_rounded,
-                label: 'Settings',
+                icon: Icons.restaurant_menu_outlined,
+                activeIcon: Icons.restaurant_menu_rounded,
+                label: 'Diet',
+              ),
+              _PatNavItem(
+                index: 3,
+                icon: Icons.person_outline_rounded,
+                activeIcon: Icons.person_rounded,
+                label: 'Profile',
               ),
             ],
           ),
@@ -78,7 +82,7 @@ class _PatNavItem extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: EdgeInsets.symmetric(
-          horizontal: SizeConfig.widthMultiplier * 5,
+          horizontal: SizeConfig.widthMultiplier * 6,
           vertical: SizeConfig.heightMultiplier * 1,
         ),
         decoration: BoxDecoration(
@@ -90,22 +94,29 @@ class _PatNavItem extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              isActive ? activeIcon : icon,
-              color: isActive ? AppColors.primary : AppColors.iconGrey,
-              size: isActive
-                  ? SizeConfig.widthMultiplier * 6.5
-                  : SizeConfig.widthMultiplier * 5.5,
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              transitionBuilder: (child, animation) =>
+                  ScaleTransition(scale: animation, child: child),
+              child: Icon(
+                isActive ? activeIcon : icon,
+                key: ValueKey(isActive),
+                color: isActive ? AppColors.primary : AppColors.iconGrey,
+                size: isActive
+                    ? SizeConfig.widthMultiplier * 6.5
+                    : SizeConfig.widthMultiplier * 5.5,
+              ),
             ),
             SizedBox(height: SizeConfig.heightMultiplier * 0.5),
-            Text(
-              label,
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 200),
               style: TextStyle(
                 fontSize: SizeConfig.textMultiplier * 1.3,
                 fontFamily: 'Poppins',
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
                 color: isActive ? AppColors.primary : AppColors.iconGrey,
               ),
+              child: Text(label),
             ),
           ],
         ),

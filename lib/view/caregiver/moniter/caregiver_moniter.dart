@@ -1,19 +1,21 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lifelinker/core/constants/app_colors.dart';
 import 'package:lifelinker/core/utils/size_config.dart';
 import 'package:lifelinker/core/utils/spacing.dart';
 import 'package:lifelinker/core/widgets/app_text.dart';
+import 'package:lifelinker/model/sos_alert.dart';
 import 'package:lifelinker/model/user.dart';
 import 'package:lifelinker/model/voice_message.dart';
-import 'package:lifelinker/model/sos_alert.dart';
-import 'package:lifelinker/provider/camera.dart';
+import 'package:lifelinker/provider/caregiver_stream.dart';
 import 'package:lifelinker/provider/sos.dart';
 import 'package:lifelinker/provider/voice_message.dart';
-import 'package:lifelinker/view/caregiver/moniter/components/camera_feed.dart';
 import 'package:lifelinker/view/caregiver/moniter/components/incomming_sos_overlay.dart';
+import 'package:lifelinker/view/caregiver/moniter/components/remote_feed.dart';
 import 'package:lifelinker/view/caregiver/moniter/components/sos_btn.dart';
-import 'package:lifelinker/view/caregiver/moniter/components/voice_btn.dart';import 'package:provider/provider.dart';
+import 'package:lifelinker/view/caregiver/moniter/components/voice_btn.dart';
+import 'package:provider/provider.dart';
 
 class CaregiverMonitorView extends StatefulWidget {
   final UserModel patient;
@@ -30,6 +32,10 @@ class CaregiverMonitorView extends StatefulWidget {
 }
 
 class _CaregiverMonitorViewState extends State<CaregiverMonitorView> {
+  late CaregiverStreamProvider _streamProvider;
+  late VoiceMessageProvider _voiceProvider;
+  late SosProvider _sosProvider;
+
   @override
   void initState() {
     super.initState();
@@ -42,27 +48,36 @@ class _CaregiverMonitorViewState extends State<CaregiverMonitorView> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _initialize());
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _streamProvider = context.read<CaregiverStreamProvider>();
+    _voiceProvider = context.read<VoiceMessageProvider>();
+    _sosProvider = context.read<SosProvider>();
+  }
+
   void _initialize() {
-    context.read<CameraProvider>().listenToPatientSession(widget.patient.uid);
-
-    context.read<VoiceMessageProvider>().startListeningForIncomingVoice(
-          patientId: widget.patient.uid,
-          caregiverId: widget.caregiverId,
-          targetSender: VoiceMessageSender.patient,
-        );
-
-    context.read<SosProvider>().startListeningForSos(
-          patientId: widget.patient.uid,
-          caregiverId: widget.caregiverId,
-          targetType: SosAlertType.patientToCaregiver,
-        );
+    _streamProvider.startWatching(
+      patientId: widget.patient.uid,
+      caregiverId: widget.caregiverId,
+    );
+    _voiceProvider.startListeningForIncomingVoice(
+      patientId: widget.patient.uid,
+      caregiverId: widget.caregiverId,
+      targetSender: VoiceMessageSender.patient,
+    );
+    _sosProvider.startListeningForSos(
+      patientId: widget.patient.uid,
+      caregiverId: widget.caregiverId,
+      targetType: SosAlertType.patientToCaregiver,
+    );
   }
 
   @override
   void dispose() {
-    context.read<CameraProvider>().stopSessionListener();
-    context.read<VoiceMessageProvider>().stopListening();
-    context.read<SosProvider>().stopListening();
+    _streamProvider.stopWatching();
+    _voiceProvider.stopListening();
+    _sosProvider.stopListening();
     super.dispose();
   }
 
@@ -78,7 +93,10 @@ class _CaregiverMonitorViewState extends State<CaregiverMonitorView> {
                 _buildHeader(context),
                 Spacing.y(2),
                 Expanded(
-                  child: CaregiverCameraFeed(patientId: widget.patient.uid),
+                  child: CaregiverRemoteFeed(
+                    patientId: widget.patient.uid,
+                    caregiverId: widget.caregiverId,
+                  ),
                 ),
                 Spacing.y(2),
                 CaregiverSosButton(
@@ -147,54 +165,78 @@ class _CaregiverMonitorViewState extends State<CaregiverMonitorView> {
                   color: AppColors.textDark,
                   fontWeight: FontWeight.w700,
                 ),
-                AppText(
-                  'Live Monitoring',
-                  size: 11,
-                  color: AppColors.iconGrey,
-                ),
+                AppText('Live Monitoring', size: 11, color: AppColors.iconGrey),
               ],
             ),
           ),
-          Consumer<CameraProvider>(
-            builder: (context, provider, _) => Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: SizeConfig.widthMultiplier * 3,
-                vertical: SizeConfig.heightMultiplier * 0.5,
-              ),
-              decoration: BoxDecoration(
-                color: provider.isCameraActive
-                    ? AppColors.successLight
-                    : AppColors.alertLight,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: SizeConfig.widthMultiplier * 2,
-                    height: SizeConfig.widthMultiplier * 2,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: provider.isCameraActive
-                          ? AppColors.successDark
-                          : AppColors.alert,
-                    ),
-                  ),
-                  Spacing.x(1.5),
-                  AppText(
-                    provider.isCameraActive ? 'Live' : 'Offline',
-                    size: 11,
-                    color: provider.isCameraActive
-                        ? AppColors.successDark
-                        : AppColors.alert,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ],
-              ),
-            ),
-          ),
+          _CaregiverStreamStatusBadge(),
         ],
       ),
+    );
+  }
+}
+
+class _CaregiverStreamStatusBadge extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<CaregiverStreamProvider>(
+      builder: (context, provider, _) {
+        final isLive = provider.isWatching && provider.hasRemoteStream;
+        final isConnecting = provider.isConnecting;
+
+        return Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: SizeConfig.widthMultiplier * 3,
+            vertical: SizeConfig.heightMultiplier * 0.5,
+          ),
+          decoration: BoxDecoration(
+            color: isLive
+                ? AppColors.successLight
+                : isConnecting
+                ? AppColors.amberLight
+                : AppColors.alertLight,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isConnecting)
+                SizedBox(
+                  width: SizeConfig.widthMultiplier * 2.5,
+                  height: SizeConfig.widthMultiplier * 2.5,
+                  child: const CircularProgressIndicator(
+                    strokeWidth: 1.5,
+                    color: AppColors.amber,
+                  ),
+                )
+              else
+                Container(
+                  width: SizeConfig.widthMultiplier * 2,
+                  height: SizeConfig.widthMultiplier * 2,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isLive ? AppColors.successDark : AppColors.alert,
+                  ),
+                ),
+              Spacing.x(1.5),
+              AppText(
+                isLive
+                    ? 'Live'
+                    : isConnecting
+                    ? 'Connecting'
+                    : 'Offline',
+                size: 11,
+                color: isLive
+                    ? AppColors.successDark
+                    : isConnecting
+                    ? AppColors.amber
+                    : AppColors.alert,
+                fontWeight: FontWeight.w600,
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
