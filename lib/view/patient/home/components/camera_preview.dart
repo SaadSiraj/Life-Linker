@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:lifelinker/core/constants/app_colors.dart';
@@ -35,7 +34,6 @@ class PatientCameraPreview extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              // WebRTC local video preview
               if (provider.isStreaming || provider.isInitializing)
                 RTCVideoView(
                   provider.renderer,
@@ -46,8 +44,7 @@ class PatientCameraPreview extends StatelessWidget {
                 _buildOfflineState(provider, patientId, caregiverId),
 
               // Connecting overlay
-              if (provider.isInitializing)
-                _buildConnectingOverlay(),
+              if (provider.isInitializing) _buildConnectingOverlay(),
 
               // "You are live" badge
               if (provider.isStreaming)
@@ -80,9 +77,7 @@ class PatientCameraPreview extends StatelessWidget {
             ),
             Spacing.y(1.5),
             AppText(
-              provider.errorMessage != null
-                  ? 'Camera error'
-                  : 'Camera is off',
+              provider.errorMessage != null ? 'Camera error' : 'Camera is off',
               size: 13,
               color: Colors.white.withOpacity(0.7),
               align: TextAlign.center,

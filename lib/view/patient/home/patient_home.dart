@@ -9,11 +9,13 @@ import 'package:lifelinker/core/utils/spacing.dart';
 import 'package:lifelinker/core/widgets/app_text.dart';
 import 'package:lifelinker/model/sos_alert.dart';
 import 'package:lifelinker/model/voice_message.dart';
+import 'package:lifelinker/provider/face_recognition.dart';
 import 'package:lifelinker/provider/patient_stream.dart';
 import 'package:lifelinker/provider/profile.dart';
 import 'package:lifelinker/provider/sos.dart';
 import 'package:lifelinker/provider/voice_message.dart';
 import 'package:lifelinker/view/patient/home/components/camera_preview.dart';
+import 'package:lifelinker/view/patient/home/components/face_recognition_indicator.dart';
 import 'package:lifelinker/view/patient/home/components/incoming_sos.dart';
 import 'package:lifelinker/view/patient/home/components/sos_button.dart';
 import 'package:lifelinker/view/patient/home/components/stream_status_badge.dart';
@@ -87,19 +89,24 @@ class _PatientHomeViewState extends State<PatientHomeView>
 
     if (!_streamProvider.isStreaming && !_streamProvider.isPaused) {
       _streamProvider.startStreaming(
-        patientId: _patientId!,
-        caregiverId: _caregiverId!,
+        patientId: _patientId ?? "",
+        caregiverId: _caregiverId ?? "",
       );
     }
     _voiceProvider.startListeningForIncomingVoice(
-      patientId: _patientId!,
-      caregiverId: _caregiverId!,
+      patientId: _patientId ?? "",
+      caregiverId: _caregiverId ?? "",
       targetSender: VoiceMessageSender.caregiver,
     );
     _sosProvider.startListeningForSos(
-      patientId: _patientId!,
-      caregiverId: _caregiverId!,
+      patientId: _patientId ?? "",
+      caregiverId: _caregiverId ?? "",
       targetType: SosAlertType.caregiverToPatient,
+    );
+
+    context.read<FaceRecognitionProvider>().initialize(
+      patientId: _patientId ?? "",
+      caregiverId: _caregiverId,
     );
   }
 
@@ -124,17 +131,17 @@ class _PatientHomeViewState extends State<PatientHomeView>
       if (_patientId == null || _caregiverId == null) return;
       await _streamProvider.stopStreaming();
       _streamProvider.startStreaming(
-        patientId: _patientId!,
-        caregiverId: _caregiverId!,
+        patientId: _patientId ?? "",
+        caregiverId: _caregiverId ?? "",
       );
       _voiceProvider.startListeningForIncomingVoice(
-        patientId: _patientId!,
-        caregiverId: _caregiverId!,
+        patientId: _patientId ?? "",
+        caregiverId: _caregiverId ?? "",
         targetSender: VoiceMessageSender.caregiver,
       );
       _sosProvider.startListeningForSos(
-        patientId: _patientId!,
-        caregiverId: _caregiverId!,
+        patientId: _patientId ?? "",
+        caregiverId: _caregiverId ?? "",
         targetType: SosAlertType.caregiverToPatient,
       );
     }
@@ -146,6 +153,7 @@ class _PatientHomeViewState extends State<PatientHomeView>
     _streamProvider.stopStreaming();
     _voiceProvider.stopListening();
     _sosProvider.stopListening();
+    context.read<FaceRecognitionProvider>().stopRecognition();
     super.dispose();
   }
 
@@ -237,6 +245,8 @@ class _PatientHomeViewState extends State<PatientHomeView>
               ],
             ),
           ),
+          const FaceRecognitionIndicator(), // ← ADD
+          Spacing.x(2),
           const StreamStatusBadge(),
         ],
       ),

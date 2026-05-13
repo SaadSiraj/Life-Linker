@@ -12,6 +12,7 @@ import 'package:lifelinker/provider/caregiver_stream.dart';
 import 'package:lifelinker/provider/dashboard.dart';
 import 'package:lifelinker/provider/dite_plan.dart';
 import 'package:lifelinker/provider/edit_profile.dart';
+import 'package:lifelinker/provider/face_recognition.dart';
 import 'package:lifelinker/provider/forgot_password.dart';
 import 'package:lifelinker/provider/health.dart';
 import 'package:lifelinker/provider/location.dart';
@@ -72,6 +73,9 @@ class MyApp extends StatelessWidget {
                 ),
                 ChangeNotifierProvider(create: (_) => DietPlanProvider()),
                 ChangeNotifierProvider(create: (_) => SleepProvider()),
+                ChangeNotifierProvider(
+                  create: (_) => FaceRecognitionProvider(),
+                ),
               ],
               child: MaterialApp(
                 debugShowCheckedModeBanner: false,

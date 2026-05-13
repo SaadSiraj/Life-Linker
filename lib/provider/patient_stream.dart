@@ -251,6 +251,20 @@ class PatientStreamProvider extends ChangeNotifier {
         });
   }
 
+Future<Uint8List?> captureFrame() async {
+  try {
+    if (_localStream == null) return null;
+    final videoTracks = _localStream!.getVideoTracks();
+    if (videoTracks.isEmpty) return null;
+    
+    final frame = await videoTracks.first.captureFrame();
+    return frame.asUint8List();
+  } catch (e) {
+    debugPrint('[PatientStream] captureFrame error: $e');
+    return null;
+  }
+}
+
   Future<void> stopStreaming() async {
     _connectingTimer?.cancel();
     _timedOut = false;

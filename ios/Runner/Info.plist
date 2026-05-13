@@ -70,5 +70,7 @@
 <string>LifeLinker needs camera access to monitor the patient</string>
 <key>NSMicrophoneUsageDescription</key>
 <string>LifeLinker needs microphone access for voice communication</string>
+<key>NSSpeechRecognitionUsageDescription</key>
+<string>Used for face recognition announcements</string>
 </dict>
 </plist>
