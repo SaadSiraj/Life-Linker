@@ -16,7 +16,6 @@ class AddEditPatientProvider extends ChangeNotifier {
   final TextEditingController emergencyContactController =
       TextEditingController();
 
-  // ── Auth fields (only used when adding a new patient) ─────────────────────
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
@@ -71,7 +70,6 @@ class AddEditPatientProvider extends ChangeNotifier {
     conditionController.text = patient.condition ?? '';
     bloodGroupController.text = patient.bloodGroup ?? '';
     emergencyContactController.text = patient.emergencyContact ?? '';
-    // Email/password not editable in edit mode
     emailController.clear();
     passwordController.clear();
     confirmPasswordController.clear();
@@ -133,7 +131,6 @@ class AddEditPatientProvider extends ChangeNotifier {
       return false;
     }
 
-    // Auth validation — only for new patients
     if (!isEditMode) {
       if (emailController.text.trim().isEmpty) {
         showCustomSnackbar(context, true, 'Please enter patient email');
@@ -179,7 +176,6 @@ class AddEditPatientProvider extends ChangeNotifier {
       final caregiverId = SharedPrefsService.getUID()!;
 
       if (isEditMode) {
-        // Edit: just update Firestore, no auth changes
         final updated = _existingPatient!.copyWith(
           name: nameController.text.trim(),
           dob: dobController.text.trim().isEmpty
@@ -200,7 +196,6 @@ class AddEditPatientProvider extends ChangeNotifier {
         notifyListeners();
         onSuccess(updated, true);
       } else {
-        // Add: create Firebase Auth account + Firestore doc
         final newPatient = await PatientRepository.addPatient(
           caregiverId: caregiverId,
           name: nameController.text.trim(),

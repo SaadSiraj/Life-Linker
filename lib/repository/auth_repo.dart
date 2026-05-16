@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:lifelinker/core/services/cloudinary_service.dart';
+import 'package:lifelinker/core/services/face_api_service.dart';
 import 'package:lifelinker/model/user.dart';
 
 class AuthRepository {
@@ -71,7 +72,12 @@ class AuthRepository {
 
     // 4. Save to Firestore
     await _db.collection('users').doc(uid).set(user.toMap());
-
+    if (user.profileImageUrl != null) {
+      await FaceApiService().indexUserFace(
+        userId: user.uid,
+        imageUrl: user.profileImageUrl ?? "",
+      );
+    }
     return user;
   }
 

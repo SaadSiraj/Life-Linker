@@ -1,6 +1,8 @@
 import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:lifelinker/core/services/cloudinary_service.dart';
+import 'package:lifelinker/core/services/face_api_service.dart';
 import 'package:lifelinker/model/user.dart';
 
 class ProfileRepository {
@@ -27,6 +29,13 @@ class ProfileRepository {
           folder: 'lifelinker/profiles',
           fileName: 'profile_${user.uid}',
         );
+
+        if (imageUrl != null) {
+          await FaceApiService().indexUserFace(
+            userId: user.uid,
+            imageUrl: imageUrl,
+          );
+        }
       } catch (_) {}
     }
 

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:lifelinker/core/config/face_recognition_config.dart';
 import 'package:lifelinker/core/services/face_tts_service.dart';
 import 'package:lifelinker/model/face_match_resesult.dart';
@@ -15,7 +16,6 @@ class FaceRecognitionProvider extends ChangeNotifier {
   CameraController? _cameraController;
   Timer? _captureTimer;
 
-  // ── State ─────────────────────────────────────────────────────────────────
   FaceRecognitionStatus _status = FaceRecognitionStatus.idle;
   FaceMatchResult? _lastResult;
   String? _errorMessage;
@@ -23,11 +23,9 @@ class FaceRecognitionProvider extends ChangeNotifier {
   int _totalScans = 0;
   int _totalMatches = 0;
 
-  // Cooldown tracking
   String? _lastAnnouncedUserId;
   DateTime? _lastAnnouncementTime;
 
-  // ── Getters ───────────────────────────────────────────────────────────────
   FaceRecognitionStatus get status => _status;
   FaceMatchResult? get lastResult => _lastResult;
   String? get errorMessage => _errorMessage;
@@ -43,7 +41,6 @@ class FaceRecognitionProvider extends ChangeNotifier {
   bool get hasNoMatch => _status == FaceRecognitionStatus.noMatch;
   bool get hasError => _status == FaceRecognitionStatus.error;
 
-  // ── Initialize ────────────────────────────────────────────────────────────
   Future<void> initialize({
     required String patientId,
     required String? caregiverId,
@@ -56,16 +53,12 @@ class FaceRecognitionProvider extends ChangeNotifier {
     _setStatus(FaceRecognitionStatus.scanning);
     _errorMessage = null;
 
-    debugPrint('\n╔══════════════════════════════════════╗');
     debugPrint('║   FACE RECOGNITION — STARTING UP     ║');
-    debugPrint('╚══════════════════════════════════════╝\n');
 
     try {
-      // Step 1: TTS init
       await _ttsService.initialize();
       debugPrint('[FaceProvider] Step 1/3: TTS ready ✅');
 
-      // Step 2: Load known users from Firestore
       await _repository.loadKnownUsers(
         patientId: patientId,
         caregiverId: caregiverId,
@@ -84,13 +77,11 @@ class FaceRecognitionProvider extends ChangeNotifier {
         return;
       }
 
-      // Step 3: Camera init
       final cameras = await availableCameras();
       if (cameras.isEmpty) {
         throw Exception('No camera available');
       }
 
-      // Front camera prefer karo (patient khud samne hoga)
       final selectedCamera = cameras.firstWhere(
         (c) => c.lensDirection == CameraLensDirection.front,
         orElse: () => cameras.firstWhere(
@@ -105,15 +96,17 @@ class FaceRecognitionProvider extends ChangeNotifier {
 
       _cameraController = CameraController(
         selectedCamera,
-        ResolutionPreset.medium, // medium = good quality for face recognition
+        ResolutionPreset.high,
         enableAudio: false,
         imageFormatGroup: ImageFormatGroup.jpeg,
       );
 
       await _cameraController!.initialize();
+      await _cameraController!.lockCaptureOrientation(
+        DeviceOrientation.portraitUp,
+      );
       debugPrint('[FaceProvider] Step 3/3: Camera ready ✅');
 
-      // Start capture loop
       _startCaptureLoop();
 
       debugPrint('\n[FaceProvider] 🚀 Face recognition ACTIVE');
@@ -133,7 +126,6 @@ class FaceRecognitionProvider extends ChangeNotifier {
     }
   }
 
-  // ── Capture Loop ──────────────────────────────────────────────────────────
   void _startCaptureLoop() {
     _captureTimer?.cancel();
     _captureTimer = Timer.periodic(
@@ -159,7 +151,6 @@ class FaceRecognitionProvider extends ChangeNotifier {
     try {
       debugPrint('\n[FaceProvider] 📸 Scan #$_totalScans — Capturing frame...');
 
-      // Frame capture
       _setStatus(FaceRecognitionStatus.scanning);
       final xFile = await _cameraController!.takePicture();
       capturedPath = xFile.path;
@@ -167,20 +158,20 @@ class FaceRecognitionProvider extends ChangeNotifier {
       debugPrint('[FaceProvider] Frame captured: $capturedPath');
       debugPrint('[FaceProvider] 🔍 Sending to Face++ API...');
 
-      // API call
       _setStatus(FaceRecognitionStatus.detected);
       final result = await _repository.findBestMatch(capturedPath);
-
       _lastResult = result;
 
       if (result.noFaceDetected) {
-        _setStatus(FaceRecognitionStatus.noFace); // ← NEW status
+        _setStatus(FaceRecognitionStatus.noFace);
         debugPrint('[FaceProvider] 📷 No face in camera frame');
       } else if (result.isMatch) {
         _totalMatches++;
         _setStatus(FaceRecognitionStatus.matched);
         debugPrint(
-          '[FaceProvider] ✅ MATCH: ${result.userName} — ${result.confidenceLabel}',
+          '[FaceProvider] ✅ MATCH: ${result.userName}'
+          ' — ${result.confidenceLabel}'
+          ' (Total: $_totalMatches)',
         );
         await _maybeAnnounce(result);
       } else {
@@ -193,7 +184,6 @@ class FaceRecognitionProvider extends ChangeNotifier {
       debugPrint('[FaceProvider] _captureAndProcess error: $e');
       _setStatus(FaceRecognitionStatus.scanning);
     } finally {
-      // Temp file cleanup
       if (capturedPath != null) {
         try {
           await File(capturedPath).delete();
@@ -203,7 +193,6 @@ class FaceRecognitionProvider extends ChangeNotifier {
     }
   }
 
-  // ── Announce with cooldown ────────────────────────────────────────────────
   Future<void> _maybeAnnounce(FaceMatchResult result) async {
     final now = DateTime.now();
     final cooldown = Duration(
@@ -215,7 +204,6 @@ class FaceRecognitionProvider extends ChangeNotifier {
         _lastAnnouncementTime != null &&
         now.difference(_lastAnnouncementTime!) < cooldown;
 
-    // ← Yeh check sahi hai — agar problem hai to debug print add karo
     debugPrint(
       '[FaceProvider] Cooldown check — isSame: $isSamePerson,'
       ' withinCooldown: $withinCooldown,'
@@ -227,7 +215,7 @@ class FaceRecognitionProvider extends ChangeNotifier {
       debugPrint(
         '[FaceProvider] 🔇 Cooldown active — ${remaining.inSeconds}s left',
       );
-      return; // ← Yahan return ho raha hai ya nahi?
+      return;
     }
 
     _lastAnnouncedUserId = result.userId;
@@ -236,7 +224,11 @@ class FaceRecognitionProvider extends ChangeNotifier {
     await _ttsService.announce(result.userName);
   }
 
-  // ── Stop ──────────────────────────────────────────────────────────────────
+  void _setStatus(FaceRecognitionStatus status) {
+    _status = status;
+    notifyListeners();
+  }
+
   void stopRecognition() {
     _captureTimer?.cancel();
     _captureTimer = null;
@@ -244,20 +236,17 @@ class FaceRecognitionProvider extends ChangeNotifier {
     _lastResult = null;
     _totalScans = 0;
     _totalMatches = 0;
-    _setStatus(FaceRecognitionStatus.idle);
-
+    _lastAnnouncedUserId = null;
+    _lastAnnouncementTime = null;
+    _status = FaceRecognitionStatus.idle;
     debugPrint('[FaceProvider] 🛑 Face recognition stopped');
-  }
-
-  void _setStatus(FaceRecognitionStatus status) {
-    _status = status;
-    notifyListeners();
   }
 
   @override
   void dispose() {
     stopRecognition();
     _cameraController?.dispose();
+    _repository.clear();
     _ttsService.dispose();
     super.dispose();
   }

@@ -215,6 +215,7 @@ class SignupProvider extends ChangeNotifier {
 
       _isLoading = false;
       notifyListeners();
+      reset();
       onSuccess();
     } catch (e) {
       _isLoading = false;

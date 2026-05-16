@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lifelinker/core/constants/app_colors.dart';
+import 'package:lifelinker/core/services/face_index_service.dart';
 import 'package:lifelinker/core/services/shared_prefs_service.dart';
 import 'package:lifelinker/core/utils/size_config.dart';
 import 'package:lifelinker/core/utils/spacing.dart';
@@ -37,6 +39,7 @@ class _PatientHomeViewState extends State<PatientHomeView>
   late PatientStreamProvider _streamProvider;
   late VoiceMessageProvider _voiceProvider;
   late SosProvider _sosProvider;
+  late FaceRecognitionProvider _faceProvider;
 
   @override
   void initState() {
@@ -57,6 +60,7 @@ class _PatientHomeViewState extends State<PatientHomeView>
     _streamProvider = context.read<PatientStreamProvider>();
     _voiceProvider = context.read<VoiceMessageProvider>();
     _sosProvider = context.read<SosProvider>();
+    _faceProvider = context.read<FaceRecognitionProvider>();
   }
 
   Future<void> _initialize() async {
@@ -87,17 +91,20 @@ class _PatientHomeViewState extends State<PatientHomeView>
   void _startAllProviders() {
     if (_patientId == null || _caregiverId == null) return;
 
+    // Pehle streaming aur baaki providers start karo
     if (!_streamProvider.isStreaming && !_streamProvider.isPaused) {
       _streamProvider.startStreaming(
         patientId: _patientId ?? "",
         caregiverId: _caregiverId ?? "",
       );
     }
+
     _voiceProvider.startListeningForIncomingVoice(
       patientId: _patientId ?? "",
       caregiverId: _caregiverId ?? "",
       targetSender: VoiceMessageSender.caregiver,
     );
+
     _sosProvider.startListeningForSos(
       patientId: _patientId ?? "",
       caregiverId: _caregiverId ?? "",
@@ -108,6 +115,19 @@ class _PatientHomeViewState extends State<PatientHomeView>
       patientId: _patientId ?? "",
       caregiverId: _caregiverId,
     );
+
+    Future.delayed(const Duration(seconds: 10), () async {
+      if (!mounted) return;
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+
+      try {
+        await user.getIdToken(true);
+        await FaceIndexService.indexAllUsers();
+      } catch (e) {
+        debugPrint('[Home] Indexing failed: $e');
+      }
+    });
   }
 
   void _ensureStreaming() {
@@ -153,7 +173,7 @@ class _PatientHomeViewState extends State<PatientHomeView>
     _streamProvider.stopStreaming();
     _voiceProvider.stopListening();
     _sosProvider.stopListening();
-    context.read<FaceRecognitionProvider>().stopRecognition();
+    _faceProvider.stopRecognition();
     super.dispose();
   }
 
@@ -245,7 +265,7 @@ class _PatientHomeViewState extends State<PatientHomeView>
               ],
             ),
           ),
-          const FaceRecognitionIndicator(), // ← ADD
+          const FaceRecognitionIndicator(),
           Spacing.x(2),
           const StreamStatusBadge(),
         ],
